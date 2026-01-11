@@ -1,0 +1,86 @@
+{
+  "kind": "collectionType",
+  "collectionName": "quizzes",
+  "info": {
+    "singularName": "quiz",
+    "pluralName": "quizzes",
+    "displayName": "Quiz",
+    "description": "Quizzes and assessments"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "instructions": {
+      "type": "richtext"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["quiz", "test", "exam", "practice", "survey"],
+      "default": "quiz"
+    },
+    "passingScore": {
+      "type": "integer",
+      "min": 0,
+      "max": 100,
+      "default": 70
+    },
+    "maxAttempts": {
+      "type": "integer",
+      "min": 1,
+      "default": 3
+    },
+    "timeLimit": {
+      "type": "integer",
+      "min": 0
+    },
+    "isTimed": {
+      "type": "boolean",
+      "default": false
+    },
+    "shuffleQuestions": {
+      "type": "boolean",
+      "default": false
+    },
+    "shuffleAnswers": {
+      "type": "boolean",
+      "default": false
+    },
+    "showCorrectAnswers": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCorrectAnswersAfterPassing": {
+      "type": "boolean",
+      "default": false
+    },
+    "isRequired": {
+      "type": "boolean",
+      "default": false
+    },
+    "course": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::course.course",
+      "inversedBy": "quizzes"
+    },
+    "questions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::question.question",
+      "mappedBy": "quiz"
+    },
+    "sortOrder": {
+      "type": "integer",
+      "default": 0
+    }
+  }
+}
+

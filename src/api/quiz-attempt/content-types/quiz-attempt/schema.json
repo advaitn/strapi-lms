@@ -1,0 +1,64 @@
+{
+  "kind": "collectionType",
+  "collectionName": "quiz_attempts",
+  "info": {
+    "singularName": "quiz-attempt",
+    "pluralName": "quiz-attempts",
+    "displayName": "Quiz Attempt",
+    "description": "User quiz attempts and scores"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "quiz": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::quiz.quiz"
+    },
+    "attemptNumber": {
+      "type": "integer",
+      "min": 1,
+      "default": 1
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["in_progress", "submitted", "graded", "abandoned"],
+      "default": "in_progress"
+    },
+    "startedAt": {
+      "type": "datetime"
+    },
+    "submittedAt": {
+      "type": "datetime"
+    },
+    "timeSpent": {
+      "type": "integer",
+      "min": 0
+    },
+    "score": {
+      "type": "decimal"
+    },
+    "maxScore": {
+      "type": "decimal"
+    },
+    "percentageScore": {
+      "type": "decimal"
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "answers": {
+      "type": "json"
+    },
+    "feedback": {
+      "type": "text"
+    }
+  }
+}
+

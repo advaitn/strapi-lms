@@ -1,0 +1,77 @@
+{
+  "kind": "collectionType",
+  "collectionName": "certificates",
+  "info": {
+    "singularName": "certificate",
+    "pluralName": "certificates",
+    "displayName": "Certificate",
+    "description": "Course completion certificates"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "certificateNumber": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "course": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::course.course"
+    },
+    "enrollment": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::enrollment.enrollment"
+    },
+    "issuedAt": {
+      "type": "datetime",
+      "required": true
+    },
+    "expiresAt": {
+      "type": "datetime"
+    },
+    "recipientName": {
+      "type": "string",
+      "required": true
+    },
+    "courseTitle": {
+      "type": "string",
+      "required": true
+    },
+    "completionDate": {
+      "type": "date",
+      "required": true
+    },
+    "grade": {
+      "type": "string"
+    },
+    "finalScore": {
+      "type": "decimal"
+    },
+    "pdfFile": {
+      "type": "media",
+      "allowedTypes": ["files"],
+      "multiple": false
+    },
+    "verificationUrl": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["issued", "revoked", "expired"],
+      "default": "issued"
+    },
+    "metadata": {
+      "type": "json"
+    }
+  }
+}
+

@@ -1,0 +1,147 @@
+{
+  "kind": "collectionType",
+  "collectionName": "courses",
+  "info": {
+    "singularName": "course",
+    "pluralName": "courses",
+    "displayName": "Course",
+    "description": "Main course entity"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "shortDescription": {
+      "type": "text",
+      "maxLength": 500
+    },
+    "thumbnail": {
+      "type": "media",
+      "allowedTypes": ["images"],
+      "multiple": false
+    },
+    "previewVideo": {
+      "type": "media",
+      "allowedTypes": ["videos"],
+      "multiple": false
+    },
+    "objectives": {
+      "type": "json"
+    },
+    "prerequisites": {
+      "type": "json"
+    },
+    "difficulty": {
+      "type": "enumeration",
+      "enum": ["beginner", "intermediate", "advanced", "expert"],
+      "default": "beginner"
+    },
+    "duration": {
+      "type": "integer",
+      "min": 0
+    },
+    "visibility": {
+      "type": "enumeration",
+      "enum": ["public", "private", "invite_only"],
+      "default": "public"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["draft", "published", "archived"],
+      "default": "draft"
+    },
+    "allowSelfEnrollment": {
+      "type": "boolean",
+      "default": true
+    },
+    "maxEnrollments": {
+      "type": "integer"
+    },
+    "enrollmentStartDate": {
+      "type": "datetime"
+    },
+    "enrollmentEndDate": {
+      "type": "datetime"
+    },
+    "courseStartDate": {
+      "type": "datetime"
+    },
+    "courseEndDate": {
+      "type": "datetime"
+    },
+    "completionCriteria": {
+      "type": "enumeration",
+      "enum": ["all_lessons", "all_quizzes", "all_lessons_and_quizzes", "percentage"],
+      "default": "all_lessons"
+    },
+    "completionPercentage": {
+      "type": "integer",
+      "min": 0,
+      "max": 100,
+      "default": 100
+    },
+    "certificateEnabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::category.category",
+      "inversedBy": "courses"
+    },
+    "tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::tag.tag",
+      "inversedBy": "courses"
+    },
+    "instructor": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "modules": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::module.module",
+      "mappedBy": "course"
+    },
+    "enrollments": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::enrollment.enrollment",
+      "mappedBy": "course"
+    },
+    "quizzes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::quiz.quiz",
+      "mappedBy": "course"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "isFree": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}
+

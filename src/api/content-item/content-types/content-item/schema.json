@@ -1,0 +1,65 @@
+{
+  "kind": "collectionType",
+  "collectionName": "content_items",
+  "info": {
+    "singularName": "content-item",
+    "pluralName": "content-items",
+    "displayName": "Content Item",
+    "description": "Learning materials: videos, PDFs, slides, audio, links"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["video", "pdf", "slides", "audio", "document", "external_link", "text", "image"],
+      "required": true
+    },
+    "sortOrder": {
+      "type": "integer",
+      "default": 0
+    },
+    "file": {
+      "type": "media",
+      "allowedTypes": ["videos", "files", "audios", "images"],
+      "multiple": false
+    },
+    "externalUrl": {
+      "type": "string"
+    },
+    "externalProvider": {
+      "type": "enumeration",
+      "enum": ["youtube", "vimeo", "google_drive", "dropbox", "other"]
+    },
+    "textContent": {
+      "type": "richtext"
+    },
+    "duration": {
+      "type": "integer",
+      "min": 0
+    },
+    "isDownloadable": {
+      "type": "boolean",
+      "default": false
+    },
+    "lesson": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::lesson.lesson",
+      "inversedBy": "contentItems"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    }
+  }
+}
+

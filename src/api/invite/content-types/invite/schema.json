@@ -1,0 +1,63 @@
+{
+  "kind": "collectionType",
+  "collectionName": "invites",
+  "info": {
+    "singularName": "invite",
+    "pluralName": "invites",
+    "displayName": "Invite",
+    "description": "Course enrollment invitations"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "code": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "email": {
+      "type": "email"
+    },
+    "course": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::course.course"
+    },
+    "invitedBy": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "usedBy": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "accepted", "expired", "revoked"],
+      "default": "pending"
+    },
+    "maxUses": {
+      "type": "integer",
+      "min": 1,
+      "default": 1
+    },
+    "usedCount": {
+      "type": "integer",
+      "min": 0,
+      "default": 0
+    },
+    "expiresAt": {
+      "type": "datetime"
+    },
+    "acceptedAt": {
+      "type": "datetime"
+    },
+    "message": {
+      "type": "text"
+    }
+  }
+}
+

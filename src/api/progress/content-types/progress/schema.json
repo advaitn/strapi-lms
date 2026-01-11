@@ -1,0 +1,72 @@
+{
+  "kind": "collectionType",
+  "collectionName": "progresses",
+  "info": {
+    "singularName": "progress",
+    "pluralName": "progresses",
+    "displayName": "Progress",
+    "description": "User progress tracking"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "course": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::course.course"
+    },
+    "module": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::module.module"
+    },
+    "lesson": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::lesson.lesson"
+    },
+    "contentItem": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::content-item.content-item"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["not_started", "in_progress", "completed"],
+      "default": "not_started"
+    },
+    "progressPercent": {
+      "type": "integer",
+      "min": 0,
+      "max": 100,
+      "default": 0
+    },
+    "timeSpent": {
+      "type": "integer",
+      "min": 0,
+      "default": 0
+    },
+    "startedAt": {
+      "type": "datetime"
+    },
+    "completedAt": {
+      "type": "datetime"
+    },
+    "lastAccessedAt": {
+      "type": "datetime"
+    },
+    "bookmarkPosition": {
+      "type": "integer"
+    },
+    "notes": {
+      "type": "text"
+    }
+  }
+}
+

@@ -1,0 +1,69 @@
+{
+  "kind": "collectionType",
+  "collectionName": "enrollments",
+  "info": {
+    "singularName": "enrollment",
+    "pluralName": "enrollments",
+    "displayName": "Enrollment",
+    "description": "Course enrollments"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "course": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::course.course",
+      "inversedBy": "enrollments"
+    },
+    "enrollmentType": {
+      "type": "enumeration",
+      "enum": ["self", "admin", "invite", "purchase"],
+      "default": "self"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "active", "completed", "expired", "cancelled", "suspended"],
+      "default": "active"
+    },
+    "enrolledAt": {
+      "type": "datetime"
+    },
+    "startDate": {
+      "type": "datetime"
+    },
+    "expiryDate": {
+      "type": "datetime"
+    },
+    "completedAt": {
+      "type": "datetime"
+    },
+    "progress": {
+      "type": "integer",
+      "min": 0,
+      "max": 100,
+      "default": 0
+    },
+    "lastAccessedAt": {
+      "type": "datetime"
+    },
+    "inviteCode": {
+      "type": "string"
+    },
+    "invitedBy": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "notes": {
+      "type": "text"
+    }
+  }
+}
+

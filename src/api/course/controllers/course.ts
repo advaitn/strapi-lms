@@ -1,0 +1,103 @@
+import { factories } from '@strapi/strapi';
+
+export default factories.createCoreController('api::course.course', ({ strapi }) => ({
+  // Override find to filter based on visibility and user role
+  async find(ctx) {
+    const user = ctx.state.user;
+    
+    // If no user, only show public published courses
+    if (!user) {
+      const existingFilters = ctx.query.filters as Record<string, any> || {};
+      ctx.query.filters = {
+        ...existingFilters,
+        visibility: 'public',
+        status: 'published',
+      };
+    }
+    
+    return await super.find(ctx);
+  },
+
+  // Get courses for the current instructor
+  async myInstructorCourses(ctx) {
+    const user = ctx.state.user;
+    
+    if (!user) {
+      return ctx.unauthorized('You must be logged in');
+    }
+
+    const courses = await strapi.documents('api::course.course').findMany({
+      filters: { instructor: { documentId: user.documentId } } as any,
+      populate: ['category', 'tags', 'modules', 'thumbnail'],
+    });
+
+    return { data: courses };
+  },
+
+  // Get enrolled courses for current user
+  async myEnrolledCourses(ctx) {
+    const user = ctx.state.user;
+    
+    if (!user) {
+      return ctx.unauthorized('You must be logged in');
+    }
+
+    const enrollments = await strapi.documents('api::enrollment.enrollment').findMany({
+      filters: { user: { documentId: user.documentId } } as any,
+      populate: {
+        course: {
+          populate: ['category', 'thumbnail', 'instructor'],
+        },
+      },
+    });
+
+    return { data: enrollments };
+  },
+
+  // Get full course content (for enrolled users)
+  async getCourseContent(ctx) {
+    const { id } = ctx.params;
+    const user = ctx.state.user;
+
+    const course = await strapi.documents('api::course.course').findOne({
+      documentId: id,
+      populate: {
+        modules: {
+          populate: {
+            lessons: {
+              populate: ['contentItems', 'quiz'],
+            },
+          },
+        },
+        category: true,
+        tags: true,
+        instructor: true,
+        quizzes: {
+          populate: ['questions'],
+        },
+      },
+    });
+
+    if (!course) {
+      return ctx.notFound('Course not found');
+    }
+
+    // Check enrollment if course is not public
+    if (course.visibility !== 'public' && user) {
+      const enrollment = await strapi.documents('api::enrollment.enrollment').findFirst({
+        filters: {
+          user: { documentId: user.documentId },
+          course: { documentId: id },
+          status: { $in: ['active', 'completed'] },
+        } as any,
+      });
+
+      const instructor = course.instructor as any;
+      if (!enrollment && instructor?.documentId !== user.documentId) {
+        return ctx.forbidden('You are not enrolled in this course');
+      }
+    }
+
+    return { data: course };
+  },
+}));

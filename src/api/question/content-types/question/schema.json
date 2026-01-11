@@ -1,0 +1,65 @@
+{
+  "kind": "collectionType",
+  "collectionName": "questions",
+  "info": {
+    "singularName": "question",
+    "pluralName": "questions",
+    "displayName": "Question",
+    "description": "Quiz questions"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "text": {
+      "type": "richtext",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["mcq_single", "mcq_multiple", "true_false", "short_answer", "essay", "fill_blank"],
+      "required": true
+    },
+    "points": {
+      "type": "integer",
+      "min": 0,
+      "default": 1
+    },
+    "sortOrder": {
+      "type": "integer",
+      "default": 0
+    },
+    "explanation": {
+      "type": "richtext"
+    },
+    "hint": {
+      "type": "text"
+    },
+    "image": {
+      "type": "media",
+      "allowedTypes": ["images"],
+      "multiple": false
+    },
+    "options": {
+      "type": "json"
+    },
+    "correctAnswer": {
+      "type": "json"
+    },
+    "quiz": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::quiz.quiz",
+      "inversedBy": "questions"
+    },
+    "caseSensitive": {
+      "type": "boolean",
+      "default": false
+    },
+    "partialCredit": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}
+
