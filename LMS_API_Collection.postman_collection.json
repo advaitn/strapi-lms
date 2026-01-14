@@ -1,0 +1,1525 @@
+{
+  "info": {
+    "_postman_id": "lms-strapi-api-collection",
+    "name": "Strapi LMS API",
+    "description": "Complete API collection for a Strapi v5 LMS backend. Replace placeholder values with your own credentials.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:1337",
+      "type": "string"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@example.com",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "Admin123!",
+      "type": "string"
+    },
+    {
+      "key": "userEmail",
+      "value": "student@example.com",
+      "type": "string"
+    },
+    {
+      "key": "userPassword",
+      "value": "Password123!",
+      "type": "string"
+    },
+    {
+      "key": "instructorEmail",
+      "value": "instructor@example.com",
+      "type": "string"
+    },
+    {
+      "key": "instructorPassword",
+      "value": "Password123!",
+      "type": "string"
+    },
+    {
+      "key": "jwt",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('adminToken', jsonData.data.token);",
+                  "    console.log('Admin token saved!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "login"]
+            },
+            "description": "Login as admin to get admin panel token"
+          }
+        },
+        {
+          "name": "User Login (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.jwt) {",
+                  "    pm.collectionVariables.set('jwt', jsonData.jwt);",
+                  "    console.log('JWT saved!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/local",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "local"]
+            },
+            "description": "Login as a student user"
+          }
+        },
+        {
+          "name": "User Login (Instructor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.jwt) {",
+                  "    pm.collectionVariables.set('jwt', jsonData.jwt);",
+                  "    console.log('JWT saved!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{instructorEmail}}\",\n  \"password\": \"{{instructorPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/local",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "local"]
+            },
+            "description": "Login as an instructor user"
+          }
+        },
+        {
+          "name": "Register New User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.jwt) {",
+                  "    pm.collectionVariables.set('jwt', jsonData.jwt);",
+                  "    console.log('JWT saved!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/local/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "local", "register"]
+            },
+            "description": "Register a new user account"
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me"]
+            },
+            "description": "Get currently authenticated user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📚 Public - Course Catalog",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories"]
+            },
+            "description": "List all course categories (public)"
+          }
+        },
+        {
+          "name": "Get Single Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get a single category by ID"
+          }
+        },
+        {
+          "name": "Get All Tags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tags",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tags"]
+            },
+            "description": "List all tags (public)"
+          }
+        },
+        {
+          "name": "Get All Courses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"]
+            },
+            "description": "List all published courses (public)"
+          }
+        },
+        {
+          "name": "Get Courses with Filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?filters[difficulty][$eq]=beginner&filters[isFree][$eq]=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"],
+              "query": [
+                {
+                  "key": "filters[difficulty][$eq]",
+                  "value": "beginner"
+                },
+                {
+                  "key": "filters[isFree][$eq]",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Filter courses by difficulty and price"
+          }
+        },
+        {
+          "name": "Get Courses with Pagination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?pagination[page]=1&pagination[pageSize]=10&sort=title:asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"],
+              "query": [
+                {
+                  "key": "pagination[page]",
+                  "value": "1"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "title:asc"
+                }
+              ]
+            },
+            "description": "Get paginated and sorted courses"
+          }
+        },
+        {
+          "name": "Get Single Course",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get a single course by ID"
+          }
+        },
+        {
+          "name": "Get Course with Relations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/:id?populate=category,tags,instructor",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", ":id"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "category,tags,instructor"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get course with related data populated"
+          }
+        },
+        {
+          "name": "Search Courses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?filters[title][$containsi]=javascript",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"],
+              "query": [
+                {
+                  "key": "filters[title][$containsi]",
+                  "value": "javascript"
+                }
+              ]
+            },
+            "description": "Search courses by title (case insensitive)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔒 Gated Content (Auth Required)",
+      "item": [
+        {
+          "name": "Get All Modules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/modules",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "modules"]
+            },
+            "description": "List all modules (requires auth)"
+          }
+        },
+        {
+          "name": "Get Modules for Course",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/modules?filters[course][id][$eq]=1&sort=sortOrder:asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "modules"],
+              "query": [
+                {
+                  "key": "filters[course][id][$eq]",
+                  "value": "1"
+                },
+                {
+                  "key": "sort",
+                  "value": "sortOrder:asc"
+                }
+              ]
+            },
+            "description": "Get modules for a specific course"
+          }
+        },
+        {
+          "name": "Get Single Module",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/modules/:id?populate=lessons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "modules", ":id"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "lessons"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get a single module with lessons"
+          }
+        },
+        {
+          "name": "Get All Lessons",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons"]
+            },
+            "description": "List all lessons (requires auth)"
+          }
+        },
+        {
+          "name": "Get Lessons for Module",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons?filters[module][id][$eq]=1&sort=sortOrder:asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons"],
+              "query": [
+                {
+                  "key": "filters[module][id][$eq]",
+                  "value": "1"
+                },
+                {
+                  "key": "sort",
+                  "value": "sortOrder:asc"
+                }
+              ]
+            },
+            "description": "Get lessons for a specific module"
+          }
+        },
+        {
+          "name": "Get Single Lesson",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons/:id?populate=module,contentItems",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons", ":id"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "module,contentItems"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get a single lesson with content"
+          }
+        },
+        {
+          "name": "Get All Quizzes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes"]
+            },
+            "description": "List all quizzes (requires auth)"
+          }
+        },
+        {
+          "name": "Get Quiz with Questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes/:id?populate=questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes", ":id"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "questions"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get a quiz with all questions"
+          }
+        },
+        {
+          "name": "Get All Questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions"]
+            },
+            "description": "List all questions (requires auth)"
+          }
+        },
+        {
+          "name": "Get Content Items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/content-items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "content-items"]
+            },
+            "description": "List all content items (requires auth)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👨‍🎓 Student APIs",
+      "item": [
+        {
+          "name": "Get Student Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/student/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "student", "dashboard"]
+            },
+            "description": "Get student's dashboard with enrolled courses and progress"
+          }
+        },
+        {
+          "name": "Browse Available Courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/student/courses/browse?category=web-development&difficulty=beginner",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "student", "courses", "browse"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "web-development"
+                },
+                {
+                  "key": "difficulty",
+                  "value": "beginner"
+                }
+              ]
+            },
+            "description": "Browse courses with optional filters"
+          }
+        },
+        {
+          "name": "Enroll in Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"document-id-here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/student/enroll",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "student", "enroll"]
+            },
+            "description": "Enroll in a course"
+          }
+        },
+        {
+          "name": "Get My Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments?populate=course",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "course"
+                }
+              ]
+            },
+            "description": "Get user's course enrollments"
+          }
+        },
+        {
+          "name": "Update Lesson Progress",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lessonId\": \"lesson-document-id\",\n  \"completed\": true,\n  \"timeSpent\": 300\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/student/progress",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "student", "progress"]
+            },
+            "description": "Update progress for a lesson"
+          }
+        },
+        {
+          "name": "Submit Quiz Attempt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizId\": \"quiz-document-id\",\n  \"answers\": {\n    \"question-1-id\": [\"answer1\"],\n    \"question-2-id\": [true]\n  },\n  \"timeSpent\": 600\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/student/quiz/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "student", "quiz", "submit"]
+            },
+            "description": "Submit answers for a quiz"
+          }
+        },
+        {
+          "name": "Get My Certificates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/student/certificates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "student", "certificates"]
+            },
+            "description": "Get student's earned certificates"
+          }
+        },
+        {
+          "name": "Get Progress for Course",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/progresses?filters[course][id][$eq]=1&populate=lesson",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "progresses"],
+              "query": [
+                {
+                  "key": "filters[course][id][$eq]",
+                  "value": "1"
+                },
+                {
+                  "key": "populate",
+                  "value": "lesson"
+                }
+              ]
+            },
+            "description": "Get progress records for a course"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👨‍🏫 Instructor APIs",
+      "item": [
+        {
+          "name": "Get Instructor Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/instructor/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "instructor", "dashboard"]
+            },
+            "description": "Get instructor's dashboard with course stats"
+          }
+        },
+        {
+          "name": "Get My Courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/instructor/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "instructor", "courses"]
+            },
+            "description": "Get all courses created by instructor"
+          }
+        },
+        {
+          "name": "Create Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"title\": \"New Course Title\",\n    \"slug\": \"new-course-title\",\n    \"description\": \"<p>Course description here</p>\",\n    \"shortDescription\": \"Short description\",\n    \"difficulty\": \"beginner\",\n    \"visibility\": \"public\",\n    \"status\": \"draft\",\n    \"isFree\": false,\n    \"price\": 49.99,\n    \"duration\": 1800,\n    \"allowSelfEnrollment\": true,\n    \"certificateEnabled\": true,\n    \"category\": \"category-document-id\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/instructor/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "instructor", "courses"]
+            },
+            "description": "Create a new course"
+          }
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"title\": \"Updated Course Title\",\n    \"price\": 59.99\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/instructor/courses/:courseId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "instructor", "courses", ":courseId"],
+              "variable": [
+                {
+                  "key": "courseId",
+                  "value": "course-document-id"
+                }
+              ]
+            },
+            "description": "Update an existing course"
+          }
+        },
+        {
+          "name": "Get Course Students",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/instructor/courses/:courseId/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "instructor", "courses", ":courseId", "students"],
+              "variable": [
+                {
+                  "key": "courseId",
+                  "value": "course-document-id"
+                }
+              ]
+            },
+            "description": "Get all students enrolled in a course"
+          }
+        },
+        {
+          "name": "Create Module",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"title\": \"Module 1: Introduction\",\n    \"slug\": \"module-1-introduction\",\n    \"description\": \"Introduction to the course\",\n    \"sortOrder\": 1,\n    \"duration\": 60,\n    \"course\": \"course-document-id\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/modules",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "modules"]
+            },
+            "description": "Create a new module"
+          }
+        },
+        {
+          "name": "Create Lesson",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"title\": \"Lesson 1: Getting Started\",\n    \"slug\": \"lesson-1-getting-started\",\n    \"description\": \"Introduction lesson\",\n    \"content\": \"<p>Lesson content here</p>\",\n    \"sortOrder\": 1,\n    \"duration\": 15,\n    \"isRequired\": true,\n    \"module\": \"module-document-id\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons"]
+            },
+            "description": "Create a new lesson"
+          }
+        },
+        {
+          "name": "Create Quiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"title\": \"Module 1 Quiz\",\n    \"description\": \"Test your knowledge\",\n    \"instructions\": \"<p>Answer all questions</p>\",\n    \"type\": \"quiz\",\n    \"passingScore\": 70,\n    \"maxAttempts\": 3,\n    \"timeLimit\": 30,\n    \"isTimed\": true,\n    \"shuffleQuestions\": true,\n    \"showCorrectAnswers\": true,\n    \"isRequired\": true,\n    \"course\": \"course-document-id\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes"]
+            },
+            "description": "Create a new quiz"
+          }
+        },
+        {
+          "name": "Create Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"text\": \"What is the capital of France?\",\n    \"type\": \"mcq_single\",\n    \"points\": 1,\n    \"sortOrder\": 1,\n    \"options\": [\"London\", \"Paris\", \"Berlin\", \"Madrid\"],\n    \"correctAnswer\": [\"Paris\"],\n    \"explanation\": \"Paris is the capital of France\",\n    \"quiz\": \"quiz-document-id\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions"]
+            },
+            "description": "Create a new question"
+          }
+        },
+        {
+          "name": "Send Course Invite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"course-document-id\",\n  \"email\": \"student@example.com\",\n  \"message\": \"You are invited to join this course!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/instructor/invite",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "instructor", "invite"]
+            },
+            "description": "Send course invitation to a student"
+          }
+        },
+        {
+          "name": "Get Course Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/instructor/courses/:courseId/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "instructor", "courses", ":courseId", "analytics"],
+              "variable": [
+                {
+                  "key": "courseId",
+                  "value": "course-document-id"
+                }
+              ]
+            },
+            "description": "Get analytics for a specific course"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👑 Admin APIs",
+      "item": [
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin-lms/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin-lms", "dashboard"]
+            },
+            "description": "Get admin dashboard statistics"
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin-lms/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin-lms", "users"]
+            },
+            "description": "Get all users in the system"
+          }
+        },
+        {
+          "name": "Update User Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user-document-id\",\n  \"isInstructor\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin-lms/users/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin-lms", "users", "role"]
+            },
+            "description": "Update a user's role"
+          }
+        },
+        {
+          "name": "Get All Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin-lms/enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin-lms", "enrollments"]
+            },
+            "description": "Get all enrollments in the system"
+          }
+        },
+        {
+          "name": "Bulk Enroll Users",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"course-document-id\",\n  \"userIds\": [\"user-1-doc-id\", \"user-2-doc-id\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin-lms/enrollments/bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin-lms", "enrollments", "bulk"]
+            },
+            "description": "Bulk enroll multiple users in a course"
+          }
+        },
+        {
+          "name": "Get Course Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin-lms/analytics/course/:courseId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin-lms", "analytics", "course", ":courseId"],
+              "variable": [
+                {
+                  "key": "courseId",
+                  "value": "course-document-id"
+                }
+              ]
+            },
+            "description": "Get detailed analytics for a course"
+          }
+        },
+        {
+          "name": "Get Reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin-lms/reports?type=enrollments&startDate=2024-01-01&endDate=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin-lms", "reports"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "enrollments"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-12-31"
+                }
+              ]
+            },
+            "description": "Generate reports"
+          }
+        },
+        {
+          "name": "Revoke Certificate",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin-lms/certificates/:certificateId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin-lms", "certificates", ":certificateId"],
+              "variable": [
+                {
+                  "key": "certificateId",
+                  "value": "certificate-document-id"
+                }
+              ]
+            },
+            "description": "Revoke a certificate"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📜 Certificates",
+      "item": [
+        {
+          "name": "Verify Certificate (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/certificates/verify/:code",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "certificates", "verify", ":code"],
+              "variable": [
+                {
+                  "key": "code",
+                  "value": "CERT-ABC123"
+                }
+              ]
+            },
+            "description": "Publicly verify a certificate by code"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎟️ Invites",
+      "item": [
+        {
+          "name": "Get All Invites",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/invites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invites"]
+            },
+            "description": "List all invites"
+          }
+        },
+        {
+          "name": "Redeem Invite Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"INVITE-CODE-HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/student/redeem-invite",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "student", "redeem-invite"]
+            },
+            "description": "Redeem an invite code to enroll in a course"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 User Profile",
+      "item": [
+        {
+          "name": "Get User Profiles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/user-profiles?populate=user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user-profiles"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "user"
+                }
+              ]
+            },
+            "description": "Get user profiles"
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"bio\": \"Updated bio\",\n    \"website\": \"https://example.com\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/user-profiles/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user-profiles", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Update a user profile"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Quiz Attempts",
+      "item": [
+        {
+          "name": "Get Quiz Attempts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/quiz-attempts?populate=quiz,user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quiz-attempts"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "quiz,user"
+                }
+              ]
+            },
+            "description": "Get quiz attempts"
+          }
+        },
+        {
+          "name": "Get Single Quiz Attempt",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/quiz-attempts/:id?populate=quiz,user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quiz-attempts", ":id"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "quiz,user"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get a single quiz attempt"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}

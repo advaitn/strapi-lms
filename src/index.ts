@@ -1,4 +1,5 @@
-// import type { Core } from '@strapi/strapi';
+import type { Core } from '@strapi/strapi';
+import seedData from './seed';
 
 export default {
   /**
@@ -16,5 +17,14 @@ export default {
    * This gives you an opportunity to set up your data model,
    * run jobs, or perform some special logic.
    */
-  bootstrap(/* { strapi }: { strapi: Core.Strapi } */) {},
+  async bootstrap({ strapi }: { strapi: Core.Strapi }) {
+    // Run seed if SEED_DATA env var is set
+    if (process.env.SEED_DATA === 'true') {
+      try {
+        await seedData(strapi);
+      } catch (error) {
+        console.error('Seed failed:', error);
+      }
+    }
+  },
 };
