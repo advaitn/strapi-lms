@@ -14,8 +14,51 @@ export default factories.createCoreController('api::course.course', ({ strapi })
         status: 'published',
       };
     }
+
+    // Handle populate parameter - allow specific relations
+    const requestedPopulate = ctx.query.populate;
+    if (requestedPopulate) {
+      // Parse the populate parameter
+      const allowedPopulates = ['thumbnail', 'category', 'tags', 'instructor', 'modules', 'previewVideo'];
+      
+      if (typeof requestedPopulate === 'string') {
+        const populateFields = requestedPopulate.split(',').map(f => f.trim());
+        const validPopulates: any = {};
+        
+        for (const field of populateFields) {
+          if (allowedPopulates.includes(field)) {
+            validPopulates[field] = true;
+          }
+        }
+        
+        ctx.query.populate = validPopulates;
+      }
+    }
     
     return await super.find(ctx);
+  },
+
+  // Override findOne to allow population
+  async findOne(ctx) {
+    const requestedPopulate = ctx.query.populate;
+    if (requestedPopulate) {
+      const allowedPopulates = ['thumbnail', 'category', 'tags', 'instructor', 'modules', 'previewVideo', 'quizzes'];
+      
+      if (typeof requestedPopulate === 'string') {
+        const populateFields = requestedPopulate.split(',').map(f => f.trim());
+        const validPopulates: any = {};
+        
+        for (const field of populateFields) {
+          if (allowedPopulates.includes(field)) {
+            validPopulates[field] = true;
+          }
+        }
+        
+        ctx.query.populate = validPopulates;
+      }
+    }
+    
+    return await super.findOne(ctx);
   },
 
   // Get courses for the current instructor
