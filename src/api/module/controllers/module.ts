@@ -35,7 +35,6 @@ export default factories.createCoreController('api::module.module', ({ strapi })
         acc[field] = order || 'asc';
         return acc;
       }, {}) : { sortOrder: 'asc' },
-      status: 'published',
     });
     
     const total = await strapi.documents('api::module.module').count({ filters: filters || {} });
@@ -80,7 +79,6 @@ export default factories.createCoreController('api::module.module', ({ strapi })
     const module = await strapi.documents('api::module.module').findOne({
       documentId: id,
       populate: Object.keys(populateConfig).length > 0 ? populateConfig : undefined,
-      status: 'published',
     });
     
     if (!module) {

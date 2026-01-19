@@ -35,7 +35,6 @@ export default factories.createCoreController('api::lesson.lesson', ({ strapi })
         acc[field] = order || 'asc';
         return acc;
       }, {}) : { sortOrder: 'asc' },
-      status: 'published',
     });
     
     const total = await strapi.documents('api::lesson.lesson').count({ filters: filters || {} });
@@ -80,7 +79,6 @@ export default factories.createCoreController('api::lesson.lesson', ({ strapi })
     const lesson = await strapi.documents('api::lesson.lesson').findOne({
       documentId: id,
       populate: Object.keys(populateConfig).length > 0 ? populateConfig : undefined,
-      status: 'published',
     });
     
     if (!lesson) {

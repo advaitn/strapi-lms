@@ -35,7 +35,6 @@ export default factories.createCoreController('api::quiz.quiz', ({ strapi }) => 
         acc[field] = order || 'asc';
         return acc;
       }, {}) : { title: 'asc' },
-      status: 'published',
     });
     
     const total = await strapi.documents('api::quiz.quiz').count({ filters: filters || {} });
@@ -80,7 +79,6 @@ export default factories.createCoreController('api::quiz.quiz', ({ strapi }) => 
     const quiz = await strapi.documents('api::quiz.quiz').findOne({
       documentId: id,
       populate: Object.keys(populateConfig).length > 0 ? populateConfig : undefined,
-      status: 'published',
     });
     
     if (!quiz) {
