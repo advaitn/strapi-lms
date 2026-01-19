@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken';
+
 /**
  * Middleware to authenticate admin panel tokens for API routes
  * Supports Strapi v5 admin session tokens
@@ -10,49 +12,56 @@ export default (config, { strapi }) => {
       return ctx.unauthorized('Missing authorization header');
     }
 
-    const [scheme, token] = authorization.split(' ');
-
-    if (scheme.toLowerCase() !== 'bearer' || !token) {
+    const parts = authorization.split(' ');
+    if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') {
       return ctx.unauthorized('Invalid authorization format');
     }
 
-    try {
-      // Get the admin auth service
-      const adminAuthService = strapi.service('admin::auth');
-      
-      // Verify the token and get the user
-      const { authenticated, credentials } = await adminAuthService.verify(ctx, {
-        token,
-      });
+    const token = parts[1];
 
-      if (authenticated && credentials) {
-        ctx.state.admin = credentials;
-        ctx.state.isAdmin = true;
-        return next();
+    try {
+      // Get admin JWT secret from config
+      const adminJwtSecret = strapi.config.get('admin.auth.secret') || process.env.ADMIN_JWT_SECRET;
+      
+      if (!adminJwtSecret) {
+        console.error('Admin JWT secret not configured');
+        return ctx.unauthorized('Server configuration error');
       }
 
-      // Fallback: try to decode and verify manually
-      const jwt = require('jsonwebtoken');
-      const { ADMIN_JWT_SECRET } = process.env;
+      // Verify the token
+      const decoded = jwt.verify(token, adminJwtSecret) as any;
       
-      if (ADMIN_JWT_SECRET) {
-        const decoded = jwt.verify(token, ADMIN_JWT_SECRET) as any;
-        
-        if (decoded && decoded.userId) {
-          const admin = await strapi.query('admin::user').findOne({
-            where: { id: decoded.userId },
-          });
+      // Strapi v5 admin tokens have userId and sessionId
+      if (decoded && decoded.userId) {
+        const admin = await strapi.query('admin::user').findOne({
+          where: { id: decoded.userId },
+        });
 
-          if (admin && admin.isActive) {
-            ctx.state.admin = admin;
-            ctx.state.isAdmin = true;
-            return next();
-          }
+        if (admin && admin.isActive) {
+          ctx.state.admin = admin;
+          ctx.state.isAdmin = true;
+          return next();
+        }
+      }
+
+      // Strapi v4 style tokens have id
+      if (decoded && decoded.id) {
+        const admin = await strapi.query('admin::user').findOne({
+          where: { id: decoded.id },
+        });
+
+        if (admin && admin.isActive) {
+          ctx.state.admin = admin;
+          ctx.state.isAdmin = true;
+          return next();
         }
       }
 
       return ctx.unauthorized('Invalid admin token');
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'TokenExpiredError') {
+        return ctx.unauthorized('Token expired');
+      }
       console.error('Admin auth error:', error.message);
       return ctx.unauthorized('Invalid or expired token');
     }
