@@ -87,4 +87,86 @@ export default factories.createCoreController('api::lesson.lesson', ({ strapi })
     
     return { data: lesson };
   },
+
+  // Custom update with admin/instructor ownership check
+  async update(ctx) {
+    const { id } = ctx.params;
+    const user = ctx.state.user;
+    const data = (ctx.request.body as any).data;
+
+    if (!user) {
+      return ctx.unauthorized('You must be logged in');
+    }
+
+    // Get lesson with module and course to check ownership
+    const lesson = await strapi.documents('api::lesson.lesson').findOne({
+      documentId: id,
+      populate: {
+        module: {
+          populate: {
+            course: {
+              populate: ['instructor'],
+            },
+          },
+        },
+      },
+    });
+
+    if (!lesson) {
+      return ctx.notFound('Lesson not found');
+    }
+
+    // Check ownership - admin can update any, instructor can update their own
+    const instructor = (lesson as any).module?.course?.instructor;
+    if (!user.isAdmin && instructor?.documentId !== user.documentId) {
+      return ctx.forbidden('You can only update lessons in your own courses');
+    }
+
+    const updated = await strapi.documents('api::lesson.lesson').update({
+      documentId: id,
+      data,
+    });
+
+    return { data: updated };
+  },
+
+  // Custom delete with admin/instructor ownership check
+  async delete(ctx) {
+    const { id } = ctx.params;
+    const user = ctx.state.user;
+
+    if (!user) {
+      return ctx.unauthorized('You must be logged in');
+    }
+
+    // Get lesson with module and course to check ownership
+    const lesson = await strapi.documents('api::lesson.lesson').findOne({
+      documentId: id,
+      populate: {
+        module: {
+          populate: {
+            course: {
+              populate: ['instructor'],
+            },
+          },
+        },
+      },
+    });
+
+    if (!lesson) {
+      return ctx.notFound('Lesson not found');
+    }
+
+    // Check ownership
+    const instructor = (lesson as any).module?.course?.instructor;
+    if (!user.isAdmin && instructor?.documentId !== user.documentId) {
+      return ctx.forbidden('You can only delete lessons in your own courses');
+    }
+
+    await strapi.documents('api::lesson.lesson').delete({
+      documentId: id,
+    });
+
+    return { data: { id } };
+  },
 }));
