@@ -10,18 +10,34 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       totalCompletions,
     ] = await Promise.all([
       strapi.documents('plugin::users-permissions.user').count({}),
-      strapi.documents('api::course.course').count({}),
-      strapi.documents('api::enrollment.enrollment').count({}),
+      strapi.documents('api::course.course').count({ status: 'published' }),
+      strapi.documents('api::enrollment.enrollment').count({ status: 'published' }),
       strapi.documents('api::enrollment.enrollment').count({
         filters: { status: 'completed' } as any,
+        status: 'published',
       }),
     ]);
 
+    // Fetch enrollments with related data
     const recentEnrollments = await strapi.documents('api::enrollment.enrollment').findMany({
       limit: 10,
       sort: { createdAt: 'desc' } as any,
       populate: ['user', 'course'],
+      status: 'published',
     });
+
+    // Clean up user password hashes
+    const cleanedEnrollments = recentEnrollments.map((enrollment: any) => ({
+      ...enrollment,
+      user: enrollment.user ? {
+        id: enrollment.user.id,
+        documentId: enrollment.user.documentId,
+        username: enrollment.user.username,
+        email: enrollment.user.email,
+        confirmed: enrollment.user.confirmed,
+        blocked: enrollment.user.blocked,
+      } : null,
+    }));
 
     return {
       data: {
@@ -32,7 +48,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
         completionRate: totalEnrollments > 0 
           ? Math.round((totalCompletions / totalEnrollments) * 100) 
           : 0,
-        recentEnrollments,
+        recentEnrollments: cleanedEnrollments,
       },
     };
   },
