@@ -1,310 +1,659 @@
 # 🎓 Strapi LMS - Complete Learning Management System
 
-A production-ready, headless LMS backend built with **Strapi v5**. This project provides all the APIs needed to build a complete e-learning platform with courses, modules, lessons, quizzes, enrollments, progress tracking, and certificates.
+A production-ready, headless LMS backend built with **Strapi v5**. Provides all APIs for building a complete e-learning platform.
+
+**Live Server**: `https://backend.cliniclaunchacademy.com`
 
 ![Strapi v5](https://img.shields.io/badge/Strapi-v5-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
 
-## ✨ Features
+---
 
-### 👥 User & Role Management
-- **Admin** - Full system control, user management, analytics
-- **Instructor** - Course creation, student management, analytics
-- **Student** - Course enrollment, progress tracking, certifications
-- Custom user profiles with bio, avatar, social links
+## 🔐 Authentication
 
-### 📚 Course Management
-- Categories and tags for organization
-- Rich course metadata (difficulty, duration, pricing)
-- Visibility controls (public/private/draft)
-- Self-enrollment or invite-only courses
+### Two Token Types
 
-### 📝 Content Management
-- **Modules** - Organize courses into sections
-- **Lessons** - Individual learning units with rich content
-- **Content Items** - Support for:
-  - 🎥 Videos (with external URLs or uploads)
-  - 📄 PDFs and documents
-  - 🖼️ Slides and presentations
-  - 🎧 Audio content
-  - 🔗 External links
+| Type | Obtain From | Use For |
+|------|-------------|---------|
+| **Admin Token** | `POST /admin/login` | Admin panel operations, instructor/admin APIs |
+| **User JWT** | `POST /api/auth/local` | Student APIs, user profile |
 
-### 📊 Assessments & Quizzes
-- Multiple question types:
-  - ✅ Multiple Choice (single/multiple answer)
-  - ✅ True/False
-  - ✅ Short Answer
-- Auto-grading with configurable passing scores
-- Multiple attempts with attempt tracking
-- Time limits and shuffled questions
-- Detailed explanations for answers
-
-### 🎫 Enrollment & Access
-- **Self-enrollment** - Open courses
-- **Invite-based** - Private courses with invite codes
-- **Manual enrollment** - Admin/instructor controlled
-- Enrollment status tracking (active/completed/suspended)
-
-### 📈 Progress Tracking & Reporting
-- Lesson-level completion tracking
-- Course progress percentage
-- Quiz scores and attempt history
-- Time spent tracking
-- **Certificates** with unique verification codes
-- Admin analytics and reports
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js >= 18
-- npm or yarn
-- SQLite (default) or PostgreSQL
-
-### Installation
-
+### Get Admin Token
 ```bash
-# Clone the repository
-git clone https://github.com/advaitnandeshwar/strapi-lms.git
-cd strapi-lms
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run develop
+curl -X POST https://backend.cliniclaunchacademy.com/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"YourPassword"}'
 ```
-
-Visit `http://localhost:1337/admin` to create your admin account.
-
-### Environment Variables
-
-Create a `.env` file in the root:
-
-```env
-# Server
-HOST=0.0.0.0
-PORT=1337
-
-# Secrets (generate your own!)
-APP_KEYS=key1,key2,key3,key4
-API_TOKEN_SALT=your-api-token-salt
-ADMIN_JWT_SECRET=your-admin-jwt-secret
-TRANSFER_TOKEN_SALT=your-transfer-token-salt
-JWT_SECRET=your-jwt-secret
-
-# Database (SQLite - default)
-DATABASE_CLIENT=sqlite
-DATABASE_FILENAME=.tmp/data.db
-
-# Database (PostgreSQL - production)
-# DATABASE_CLIENT=postgres
-# DATABASE_HOST=localhost
-# DATABASE_PORT=5432
-# DATABASE_NAME=strapi_lms
-# DATABASE_USERNAME=strapi
-# DATABASE_PASSWORD=your-password
-# DATABASE_SSL=false
-```
-
-Generate secrets:
-```bash
-openssl rand -base64 32  # Run 4 times for APP_KEYS
-openssl rand -base64 32  # For each *_SALT and *_SECRET
-```
-
-## 📁 Project Structure
-
-```
-strapi-lms/
-├── config/                 # Strapi configuration
-│   ├── database.ts        # Database config
-│   ├── server.ts          # Server config
-│   └── plugins.ts         # Plugin config
-├── src/
-│   ├── api/               # Content types & APIs
-│   │   ├── category/      # Course categories
-│   │   ├── tag/           # Course tags
-│   │   ├── course/        # Main course entity
-│   │   ├── module/        # Course modules
-│   │   ├── lesson/        # Module lessons
-│   │   ├── content-item/  # Lesson content
-│   │   ├── quiz/          # Course quizzes
-│   │   ├── question/      # Quiz questions
-│   │   ├── enrollment/    # User enrollments
-│   │   ├── progress/      # Progress tracking
-│   │   ├── quiz-attempt/  # Quiz attempts
-│   │   ├── certificate/   # Earned certificates
-│   │   ├── user-profile/  # Extended user data
-│   │   ├── invite/        # Course invites
-│   │   ├── admin-lms/     # Admin-specific APIs
-│   │   ├── instructor/    # Instructor APIs
-│   │   └── student/       # Student APIs
-│   ├── extensions/        # Plugin extensions
-│   ├── seed.ts           # Database seeding
-│   └── index.ts          # App entry point
-├── LMS_API_Collection.postman_collection.json  # Postman collection
-└── LMS_API_Environment.postman_environment.json # Postman environment
-```
-
-## 🔌 API Overview
-
-### Public Endpoints (No Auth)
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/categories` | GET | List all categories |
-| `/api/courses` | GET | List published courses |
-| `/api/tags` | GET | List all tags |
-| `/api/certificates/verify/:code` | GET | Verify a certificate |
-
-### Authentication
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/auth/local` | POST | Login (email/password) |
-| `/api/auth/local/register` | POST | Register new user |
-| `/api/users/me` | GET | Get current user |
-
-### Student Endpoints (Auth Required)
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/student/dashboard` | GET | Student dashboard |
-| `/api/student/enroll` | POST | Enroll in course |
-| `/api/student/progress` | POST | Update progress |
-| `/api/student/quiz/submit` | POST | Submit quiz |
-| `/api/student/certificates` | GET | Get certificates |
-
-### Instructor Endpoints (Auth Required)
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/instructor/dashboard` | GET | Instructor dashboard |
-| `/api/instructor/courses` | GET/POST | List/create courses |
-| `/api/instructor/courses/:id` | PUT | Update course |
-| `/api/instructor/courses/:id/students` | GET | List enrolled students |
-| `/api/instructor/courses/:id/analytics` | GET | Course analytics |
-| `/api/instructor/invite` | POST | Send course invite |
-
-### Admin Endpoints (Admin Token Required)
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/admin-lms/dashboard` | GET | Admin dashboard stats |
-| `/api/admin-lms/users` | GET | List all users |
-| `/api/admin-lms/users/role` | PUT | Update user role |
-| `/api/admin-lms/enrollments` | GET | List all enrollments |
-| `/api/admin-lms/enrollments/bulk` | POST | Bulk enroll users |
-| `/api/admin-lms/reports` | GET | Generate reports |
-
-## 📮 Postman Collection
-
-Import the included Postman files for easy API testing:
-
-1. Import `LMS_API_Collection.postman_collection.json`
-2. Import `LMS_API_Environment.postman_environment.json`
-3. Update environment variables with your credentials
-4. Run "User Login" to auto-populate JWT token
-
-The collection includes 70+ pre-configured requests with examples.
-
-## 🌱 Seeding Data
-
-The project includes a seed script that creates sample data:
-- 5 categories
-- 10 tags
-- 5 users (2 instructors, 3 students)
-- 5 courses with modules and lessons
-- Quizzes with various question types
-- Sample enrollments
-
-Seed data is automatically created on first run. To reset:
-
-```bash
-# Delete the database and restart
-rm -rf .tmp/data.db
-npm run develop
-```
-
-## 🚀 Production Deployment
-
-### Using PostgreSQL
-
-1. Update `.env` with PostgreSQL credentials
-2. Install the PostgreSQL client:
-   ```bash
-   npm install pg
-   ```
-3. Build and start:
-   ```bash
-   NODE_OPTIONS='--max-old-space-size=1536' npm run build
-   npm run start
-   ```
-
-### Using PM2 (Recommended)
-
-```bash
-# Install PM2
-npm install -g pm2
-
-# Start with PM2
-pm2 start npm --name "strapi-lms" -- run start
-
-# Auto-restart on reboot
-pm2 startup
-pm2 save
-```
-
-### Nginx Reverse Proxy
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    
-    location / {
-        proxy_pass http://localhost:1337;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
+Response:
+```json
+{
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "user": { "id": 1, "email": "admin@example.com", ... }
+  }
 }
 ```
 
-### SSL with Let's Encrypt
-
+### Get User Token
 ```bash
-sudo certbot --nginx -d your-domain.com
+curl -X POST https://backend.cliniclaunchacademy.com/api/auth/local \
+  -H "Content-Type: application/json" \
+  -d '{"identifier":"user@example.com","password":"Password123!"}'
+```
+Response:
+```json
+{
+  "jwt": "eyJhbGciOiJIUzI1NiIs...",
+  "user": { "id": 1, "username": "user", "email": "user@example.com", ... }
+}
 ```
 
-## 🔒 Security Notes
+### Register New User
+```bash
+curl -X POST https://backend.cliniclaunchacademy.com/api/auth/local/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "newuser",
+    "email": "newuser@example.com",
+    "password": "Password123!"
+  }'
+```
 
-- Always generate unique secrets for production
-- Keep `.env` file secure and never commit it
-- Configure CORS in `config/middlewares.ts` for your frontend domain
-- Use HTTPS in production
-- Regularly update dependencies
+---
 
-## 📝 Content Gating
+## 📚 API Reference
 
-By default, course content is gated:
-- **Public**: Categories, courses (metadata), tags, certificate verification
-- **Authenticated**: Modules, lessons, quizzes, questions, enrollments
+### Public Endpoints (No Auth Required)
 
-Configure permissions in Strapi Admin → Settings → Roles.
+#### Get Courses
+```bash
+GET /api/courses
+GET /api/courses?populate=thumbnail,category,instructor
+GET /api/courses?pagination[pageSize]=10&pagination[page]=1
+GET /api/courses?filters[difficulty]=beginner
+GET /api/courses?sort=title:asc
+```
+Response:
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "documentId": "abc123",
+      "title": "Complete JavaScript Mastery",
+      "slug": "complete-javascript-mastery",
+      "description": "<p>Master JavaScript...</p>",
+      "shortDescription": "Become a JS expert",
+      "difficulty": "beginner",
+      "duration": 2400,
+      "visibility": "public",
+      "status": "published",
+      "price": 49.99,
+      "isFree": false,
+      "thumbnail": { "url": "/uploads/thumb.jpg" },
+      "category": { "id": 1, "name": "Web Development" },
+      "instructor": { "id": 1, "username": "john_instructor" }
+    }
+  ],
+  "meta": {
+    "pagination": { "page": 1, "pageSize": 25, "total": 5, "pageCount": 1 }
+  }
+}
+```
 
-## 🤝 Contributing
+#### Get Course by Slug
+```bash
+GET /api/courses/slug/complete-javascript-mastery?populate=category,modules,instructor
+```
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+#### Get Categories
+```bash
+GET /api/categories
+GET /api/categories?populate=icon,courses
+```
+
+#### Verify Certificate
+```bash
+GET /api/certificates/verify/CERT-ABC123
+```
+
+---
+
+### Authenticated Endpoints (User Token Required)
+
+#### Get Modules
+```bash
+GET /api/modules?populate=thumbnail,course,lessons
+GET /api/modules?filters[course][documentId]=abc123&sort=sortOrder:asc
+```
+Response:
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "documentId": "mod123",
+      "title": "Getting Started",
+      "description": "Introduction to the course",
+      "sortOrder": 1,
+      "duration": 600,
+      "thumbnail": { "url": "/uploads/module1.jpg" },
+      "lessons": [...]
+    }
+  ]
+}
+```
+
+#### Get Lessons
+```bash
+GET /api/lessons?populate=featuredImage,module,contentItems,quiz
+GET /api/lessons?filters[module][documentId]=mod123&sort=sortOrder:asc
+```
+
+#### Get Quizzes
+```bash
+GET /api/quizzes?populate=coverImage,course,questions
+```
+
+#### Get Enrollments
+```bash
+GET /api/enrollments?populate=user,course
+```
+
+---
+
+### Student APIs (User Token Required)
+
+#### Student Dashboard
+```bash
+GET /api/student/dashboard
+Authorization: Bearer USER_JWT
+```
+Response:
+```json
+{
+  "data": {
+    "totalEnrollments": 3,
+    "inProgressCount": 2,
+    "completedCount": 1,
+    "certificates": 1,
+    "enrollments": [...],
+    "recentCertificates": [...]
+  }
+}
+```
+
+#### Enroll in Course
+```bash
+POST /api/student/enroll
+Authorization: Bearer USER_JWT
+Content-Type: application/json
+
+{
+  "data": { "courseId": "abc123" }
+}
+```
+
+#### Enroll with Invite Code
+```bash
+POST /api/student/enroll-with-invite
+Authorization: Bearer USER_JWT
+Content-Type: application/json
+
+{
+  "data": { "code": "INV-ABC123" }
+}
+```
+
+#### Complete Lesson
+```bash
+POST /api/student/complete-lesson
+Authorization: Bearer USER_JWT
+Content-Type: application/json
+
+{
+  "data": {
+    "lessonId": "lesson123",
+    "enrollmentId": "enroll123"
+  }
+}
+```
+
+#### Submit Quiz
+```bash
+POST /api/student/quiz/submit
+Authorization: Bearer USER_JWT
+Content-Type: application/json
+
+{
+  "data": {
+    "quizId": "quiz123",
+    "answers": [
+      { "questionId": "q1", "answer": "A" },
+      { "questionId": "q2", "answer": ["B", "C"] },
+      { "questionId": "q3", "answer": "Paris" }
+    ]
+  }
+}
+```
+Response:
+```json
+{
+  "data": {
+    "score": 80,
+    "totalPoints": 100,
+    "percentageScore": 80,
+    "passed": true,
+    "passingScore": 70,
+    "results": [...]
+  }
+}
+```
+
+#### Get My Certificates
+```bash
+GET /api/student/certificates
+Authorization: Bearer USER_JWT
+```
+
+#### Get/Update Profile
+```bash
+GET /api/student/profile
+PUT /api/student/profile
+Authorization: Bearer USER_JWT
+Content-Type: application/json
+
+{
+  "data": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "bio": "Software developer"
+  }
+}
+```
+
+---
+
+### Instructor APIs (Admin Token Required)
+
+#### Instructor Dashboard
+```bash
+GET /api/instructor/dashboard
+Authorization: Bearer ADMIN_TOKEN
+```
+Response:
+```json
+{
+  "data": {
+    "totalCourses": 5,
+    "publishedCourses": 3,
+    "draftCourses": 2,
+    "totalStudents": 150,
+    "totalCompletions": 45,
+    "completionRate": 30,
+    "courses": [...]
+  }
+}
+```
+
+#### Create Course
+```bash
+POST /api/instructor/courses
+Authorization: Bearer ADMIN_TOKEN
+Content-Type: application/json
+
+{
+  "data": {
+    "title": "New Course",
+    "slug": "new-course",
+    "description": "<p>Course description</p>",
+    "shortDescription": "Short desc",
+    "difficulty": "beginner",
+    "visibility": "public",
+    "status": "draft",
+    "isFree": true,
+    "price": 0,
+    "duration": 3600,
+    "category": "cat-documentId",
+    "thumbnail": 1,
+    "bannerImage": 2,
+    "gallery": [3, 4, 5]
+  }
+}
+```
+
+#### Update Course
+```bash
+PUT /api/instructor/courses/:documentId
+Authorization: Bearer ADMIN_TOKEN
+Content-Type: application/json
+
+{
+  "data": {
+    "title": "Updated Title",
+    "status": "published"
+  }
+}
+```
+
+#### Add Module to Course
+```bash
+POST /api/instructor/courses/:courseId/modules
+Authorization: Bearer ADMIN_TOKEN
+Content-Type: application/json
+
+{
+  "data": {
+    "title": "Module 1: Introduction",
+    "description": "Getting started",
+    "thumbnail": 6
+  }
+}
+```
+
+#### Add Lesson to Module
+```bash
+POST /api/instructor/modules/:moduleId/lessons
+Authorization: Bearer ADMIN_TOKEN
+Content-Type: application/json
+
+{
+  "data": {
+    "title": "Lesson 1: Welcome",
+    "description": "Welcome to the course",
+    "content": "<p>Rich text content...</p>",
+    "featuredImage": 7,
+    "duration": 300,
+    "isPreview": true
+  }
+}
+```
+
+#### Create Quiz
+```bash
+POST /api/instructor/courses/:courseId/quizzes
+Authorization: Bearer ADMIN_TOKEN
+Content-Type: application/json
+
+{
+  "data": {
+    "title": "Module 1 Quiz",
+    "description": "Test your knowledge",
+    "passingScore": 70,
+    "maxAttempts": 3,
+    "timeLimit": 1800,
+    "isTimed": true,
+    "shuffleQuestions": true,
+    "coverImage": 8
+  }
+}
+```
+
+#### Add Question to Quiz
+```bash
+POST /api/instructor/quizzes/:quizId/questions
+Authorization: Bearer ADMIN_TOKEN
+Content-Type: application/json
+
+{
+  "data": {
+    "type": "multiple_choice",
+    "text": "What is JavaScript?",
+    "options": ["A programming language", "A coffee brand", "An island"],
+    "correctAnswer": "A programming language",
+    "points": 10,
+    "explanation": "JavaScript is a programming language..."
+  }
+}
+```
+
+#### Create Invite Code
+```bash
+POST /api/instructor/courses/:courseId/invite
+Authorization: Bearer ADMIN_TOKEN
+Content-Type: application/json
+
+{
+  "data": {
+    "email": "student@example.com",
+    "maxUses": 1,
+    "expiresAt": "2026-12-31T23:59:59Z",
+    "message": "You're invited to join this course!"
+  }
+}
+```
+
+#### Get Course Students
+```bash
+GET /api/instructor/courses/:documentId/students
+Authorization: Bearer ADMIN_TOKEN
+```
+
+#### Get Course Analytics
+```bash
+GET /api/instructor/courses/:documentId/analytics
+Authorization: Bearer ADMIN_TOKEN
+```
+Response:
+```json
+{
+  "data": {
+    "totalStudents": 50,
+    "activeStudents": 35,
+    "completedStudents": 15,
+    "avgProgress": 65,
+    "totalQuizAttempts": 120,
+    "avgQuizScore": 78
+  }
+}
+```
+
+---
+
+### Admin APIs (Admin Token Required)
+
+#### Admin Dashboard
+```bash
+GET /api/admin-lms/dashboard
+Authorization: Bearer ADMIN_TOKEN
+```
+Response:
+```json
+{
+  "data": {
+    "totalUsers": 100,
+    "totalCourses": 10,
+    "totalEnrollments": 250,
+    "totalCompletions": 75,
+    "completionRate": 30,
+    "recentEnrollments": [...]
+  }
+}
+```
+
+#### List All Users
+```bash
+GET /api/admin-lms/users
+GET /api/admin-lms/users?userType=instructor
+GET /api/admin-lms/users?userType=student
+Authorization: Bearer ADMIN_TOKEN
+```
+Response:
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "documentId": "user123",
+      "username": "john_instructor",
+      "email": "john@example.com",
+      "isInstructor": true,
+      "isAdmin": false,
+      "userType": "instructor",
+      "profile": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "isInstructor": true
+      }
+    }
+  ],
+  "meta": {
+    "pagination": {...},
+    "summary": {
+      "totalUsers": 100,
+      "instructors": 5,
+      "students": 95
+    }
+  }
+}
+```
+
+#### List All Enrollments
+```bash
+GET /api/admin-lms/enrollments
+GET /api/admin-lms/enrollments?status=active
+GET /api/admin-lms/enrollments?courseId=abc123
+Authorization: Bearer ADMIN_TOKEN
+```
+
+#### List All Certificates
+```bash
+GET /api/admin-lms/certificates
+Authorization: Bearer ADMIN_TOKEN
+```
+
+---
+
+## 📤 Image Upload
+
+### Step 1: Upload Image
+```bash
+POST /api/upload
+Authorization: Bearer TOKEN
+Content-Type: multipart/form-data
+
+files: @image.jpg
+```
+Response:
+```json
+[
+  {
+    "id": 1,
+    "name": "image.jpg",
+    "url": "/uploads/image_abc123.jpg",
+    "mime": "image/jpeg",
+    "size": 102400
+  }
+]
+```
+
+### Step 2: Use Image ID
+```bash
+POST /api/instructor/courses
+Authorization: Bearer ADMIN_TOKEN
+Content-Type: application/json
+
+{
+  "data": {
+    "title": "My Course",
+    "thumbnail": 1,
+    "bannerImage": 2,
+    "gallery": [3, 4, 5]
+  }
+}
+```
+
+### Image Fields by Content Type
+
+| Content Type | Fields | Type |
+|-------------|--------|------|
+| **Course** | `thumbnail`, `bannerImage`, `previewVideo` | Single |
+| **Course** | `gallery` | Multiple |
+| **Module** | `thumbnail` | Single |
+| **Lesson** | `featuredImage` | Single |
+| **Quiz** | `coverImage` | Single |
+| **Certificate** | `badgeImage`, `pdfFile` | Single |
+| **Category** | `icon` | Single |
+| **User Profile** | `avatar` | Single |
+
+---
+
+## 🔧 Query Parameters
+
+### Pagination
+```
+?pagination[page]=1&pagination[pageSize]=25
+```
+
+### Filtering
+```
+?filters[difficulty]=beginner
+?filters[price][$gte]=10
+?filters[title][$contains]=JavaScript
+?filters[category][slug]=web-development
+```
+
+### Sorting
+```
+?sort=title:asc
+?sort=createdAt:desc
+?sort=price:asc,title:desc
+```
+
+### Population
+```
+?populate=thumbnail,category
+?populate=thumbnail,category,instructor,modules
+```
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# Clone
+git clone https://github.com/advaitn/strapi-lms.git
+cd strapi-lms
+
+# Install
+npm install
+
+# Run (with seed data)
+SEED_DATA=true npm run develop
+
+# Access admin panel
+open http://localhost:1337/admin
+```
+
+### Test Credentials (after seeding)
+- **Instructors**: `john@example.com` / `Password123!`
+- **Students**: `mike@example.com` / `Password123!`
+
+---
+
+## 📦 Postman Collection
+
+Import the included files:
+1. `LMS_API_Collection.postman_collection.json`
+2. `LMS_API_Environment.postman_environment.json`
+
+Set your `baseUrl` and tokens in the environment.
+
+---
+
+## 🔒 Permissions Summary
+
+| Role | Can Access |
+|------|------------|
+| **Public** | Courses, categories, certificate verification |
+| **Authenticated** | Modules, lessons, quizzes, questions, enrollments, upload |
+| **Admin Token** | All instructor & admin APIs |
+
+---
 
 ## 📄 License
 
-MIT License - feel free to use this for your own projects!
-
-## 📚 Resources
-
-- [Strapi Documentation](https://docs.strapi.io)
-- [Strapi v5 Migration Guide](https://docs.strapi.io/dev-docs/migration)
-- [Strapi Discord](https://discord.strapi.io)
-
----
+MIT License - feel free to use for your projects!
 
 Built with ❤️ using [Strapi](https://strapi.io)
