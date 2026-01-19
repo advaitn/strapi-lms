@@ -14,7 +14,7 @@ export default factories.createCoreController('api::course.course', ({ strapi })
     }
 
     // Handle populate parameter - allow specific relations
-    const allowedPopulates = ['thumbnail', 'category', 'tags', 'instructor', 'modules', 'previewVideo'];
+    const allowedPopulates = ['thumbnail', 'bannerImage', 'gallery', 'category', 'tags', 'instructor', 'modules', 'previewVideo'];
     let populateConfig: any = {};
     
     if (requestedPopulate) {
@@ -67,7 +67,7 @@ export default factories.createCoreController('api::course.course', ({ strapi })
     const { id } = ctx.params;
     const requestedPopulate = ctx.query.populate;
     
-    const allowedPopulates = ['thumbnail', 'category', 'tags', 'instructor', 'modules', 'previewVideo', 'quizzes'];
+    const allowedPopulates = ['thumbnail', 'bannerImage', 'gallery', 'category', 'tags', 'instructor', 'modules', 'previewVideo', 'quizzes'];
     let populateConfig: any = {};
     
     if (requestedPopulate) {
@@ -103,7 +103,7 @@ export default factories.createCoreController('api::course.course', ({ strapi })
   // Find course by slug
   async findBySlug(ctx) {
     const { slug } = ctx.params;
-    const allowedPopulates = ['thumbnail', 'category', 'tags', 'instructor', 'modules', 'previewVideo', 'quizzes'];
+    const allowedPopulates = ['thumbnail', 'bannerImage', 'gallery', 'category', 'tags', 'instructor', 'modules', 'previewVideo', 'quizzes'];
     
     // Build populate object from query
     let populateConfig: any = {};

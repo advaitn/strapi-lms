@@ -5,7 +5,7 @@ export default factories.createCoreController('api::lesson.lesson', ({ strapi })
     const { page = 1, pageSize = 25, filters, sort } = ctx.query as any;
     const requestedPopulate = ctx.query.populate;
     
-    const allowedPopulates = ['module', 'contentItems', 'quiz'];
+    const allowedPopulates = ['module', 'contentItems', 'quiz', 'featuredImage'];
     let populateConfig: any = {};
     
     if (requestedPopulate) {
@@ -57,7 +57,7 @@ export default factories.createCoreController('api::lesson.lesson', ({ strapi })
     const { id } = ctx.params;
     const requestedPopulate = ctx.query.populate;
     
-    const allowedPopulates = ['module', 'contentItems', 'quiz'];
+    const allowedPopulates = ['module', 'contentItems', 'quiz', 'featuredImage'];
     let populateConfig: any = {};
     
     if (requestedPopulate) {

@@ -61,6 +61,11 @@
       "allowedTypes": ["files"],
       "multiple": false
     },
+    "badgeImage": {
+      "type": "media",
+      "allowedTypes": ["images"],
+      "multiple": false
+    },
     "verificationUrl": {
       "type": "string"
     },

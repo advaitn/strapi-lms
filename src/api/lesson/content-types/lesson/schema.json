@@ -22,6 +22,11 @@
     "description": {
       "type": "text"
     },
+    "featuredImage": {
+      "type": "media",
+      "allowedTypes": ["images"],
+      "multiple": false
+    },
     "content": {
       "type": "richtext"
     },

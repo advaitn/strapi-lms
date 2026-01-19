@@ -5,7 +5,7 @@ export default factories.createCoreController('api::module.module', ({ strapi })
     const { page = 1, pageSize = 25, filters, sort } = ctx.query as any;
     const requestedPopulate = ctx.query.populate;
     
-    const allowedPopulates = ['course', 'lessons'];
+    const allowedPopulates = ['course', 'lessons', 'thumbnail'];
     let populateConfig: any = {};
     
     if (requestedPopulate) {
@@ -57,7 +57,7 @@ export default factories.createCoreController('api::module.module', ({ strapi })
     const { id } = ctx.params;
     const requestedPopulate = ctx.query.populate;
     
-    const allowedPopulates = ['course', 'lessons'];
+    const allowedPopulates = ['course', 'lessons', 'thumbnail'];
     let populateConfig: any = {};
     
     if (requestedPopulate) {

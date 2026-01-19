@@ -18,6 +18,11 @@
     "description": {
       "type": "text"
     },
+    "coverImage": {
+      "type": "media",
+      "allowedTypes": ["images"],
+      "multiple": false
+    },
     "instructions": {
       "type": "richtext"
     },

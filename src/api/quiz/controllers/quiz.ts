@@ -5,7 +5,7 @@ export default factories.createCoreController('api::quiz.quiz', ({ strapi }) => 
     const { page = 1, pageSize = 25, filters, sort } = ctx.query as any;
     const requestedPopulate = ctx.query.populate;
     
-    const allowedPopulates = ['course', 'questions', 'lesson'];
+    const allowedPopulates = ['course', 'questions', 'lesson', 'coverImage'];
     let populateConfig: any = {};
     
     if (requestedPopulate) {
@@ -57,7 +57,7 @@ export default factories.createCoreController('api::quiz.quiz', ({ strapi }) => 
     const { id } = ctx.params;
     const requestedPopulate = ctx.query.populate;
     
-    const allowedPopulates = ['course', 'questions', 'lesson'];
+    const allowedPopulates = ['course', 'questions', 'lesson', 'coverImage'];
     let populateConfig: any = {};
     
     if (requestedPopulate) {

@@ -22,6 +22,11 @@
     "description": {
       "type": "text"
     },
+    "thumbnail": {
+      "type": "media",
+      "allowedTypes": ["images"],
+      "multiple": false
+    },
     "sortOrder": {
       "type": "integer",
       "default": 0,

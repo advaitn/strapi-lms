@@ -32,6 +32,16 @@
       "allowedTypes": ["images"],
       "multiple": false
     },
+    "bannerImage": {
+      "type": "media",
+      "allowedTypes": ["images"],
+      "multiple": false
+    },
+    "gallery": {
+      "type": "media",
+      "allowedTypes": ["images"],
+      "multiple": true
+    },
     "previewVideo": {
       "type": "media",
       "allowedTypes": ["videos"],
