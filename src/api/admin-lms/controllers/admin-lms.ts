@@ -39,7 +39,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
 
   // Manage all users
   async getAllUsers(ctx) {
-    const { page = 1, pageSize = 25, search, role } = ctx.query as any;
+    const { page = 1, pageSize = 25, search, role, userType } = ctx.query as any;
 
     const filters: any = {};
     if (search) {
@@ -59,16 +59,77 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       start: (Number(page) - 1) * Number(pageSize),
     });
 
+    // Fetch user profiles to get isInstructor status
+    const userIds = users.map((u: any) => u.documentId);
+    const profiles = await strapi.documents('api::user-profile.user-profile').findMany({
+      filters: {
+        user: { documentId: { $in: userIds } },
+      } as any,
+      populate: ['user'],
+    });
+
+    // Create a map of user documentId to profile
+    const profileMap = new Map();
+    profiles.forEach((profile: any) => {
+      if (profile.user?.documentId) {
+        profileMap.set(profile.user.documentId, profile);
+      }
+    });
+
+    // Merge user data with profile data
+    const usersWithProfiles = users.map((user: any) => {
+      const profile = profileMap.get(user.documentId);
+      return {
+        id: user.id,
+        documentId: user.documentId,
+        username: user.username,
+        email: user.email,
+        confirmed: user.confirmed,
+        blocked: user.blocked,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        role: user.role,
+        // Profile fields
+        profile: profile ? {
+          id: profile.id,
+          documentId: profile.documentId,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          bio: profile.bio,
+          headline: profile.headline,
+          isInstructor: profile.isInstructor,
+          instructorVerified: profile.instructorVerified,
+        } : null,
+        // Convenience fields
+        isInstructor: profile?.isInstructor || false,
+        isAdmin: user.username?.includes('admin') || false, // Admin users are in admin::user table, not here
+        userType: profile?.isInstructor ? 'instructor' : 'student',
+      };
+    });
+
+    // Filter by userType if specified
+    let filteredUsers = usersWithProfiles;
+    if (userType === 'instructor') {
+      filteredUsers = usersWithProfiles.filter((u: any) => u.isInstructor);
+    } else if (userType === 'student') {
+      filteredUsers = usersWithProfiles.filter((u: any) => !u.isInstructor);
+    }
+
     const total = await strapi.documents('plugin::users-permissions.user').count({ filters });
 
     return {
-      data: users,
+      data: filteredUsers,
       meta: {
         pagination: {
           page: Number(page),
           pageSize: Number(pageSize),
-          total,
-          pageCount: Math.ceil(total / Number(pageSize)),
+          total: userType ? filteredUsers.length : total,
+          pageCount: Math.ceil((userType ? filteredUsers.length : total) / Number(pageSize)),
+        },
+        summary: {
+          totalUsers: users.length,
+          instructors: usersWithProfiles.filter((u: any) => u.isInstructor).length,
+          students: usersWithProfiles.filter((u: any) => !u.isInstructor).length,
         },
       },
     };
