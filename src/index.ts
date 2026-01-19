@@ -1,5 +1,6 @@
 import type { Core } from '@strapi/strapi';
 import seedData from './seed';
+import seedCLA from './seed-cla';
 import jwt from 'jsonwebtoken';
 
 export default {
@@ -86,6 +87,15 @@ export default {
         await seedData(strapi);
       } catch (error) {
         console.error('Seed failed:', error);
+      }
+    }
+    
+    // Run CLA seed if SEED_CLA env var is set
+    if (process.env.SEED_CLA === 'true') {
+      try {
+        await seedCLA(strapi);
+      } catch (error) {
+        console.error('CLA Seed failed:', error);
       }
     }
   },
