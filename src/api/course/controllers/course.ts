@@ -103,7 +103,49 @@ export default factories.createCoreController('api::course.course', ({ strapi })
   // Find course by slug or documentId
   async findBySlug(ctx) {
     const { slug } = ctx.params;
-    const user = ctx.state.user;
+    
+    // Since auth: false is set for this route, manually check for auth token
+    let user = ctx.state.user;
+    if (!user) {
+      const authHeader = ctx.request.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        try {
+          // Try admin token first
+          const adminDecoded = await strapi.admin.services.token.verify(token);
+          if (adminDecoded && adminDecoded.userId) {
+            const adminUser = await strapi.admin.services.user.findOne(adminDecoded.userId);
+            if (adminUser) {
+              user = {
+                id: adminUser.id,
+                documentId: `admin-${adminUser.id}`,
+                isAdmin: true,
+                _isAdminToken: true,
+              };
+            }
+          }
+        } catch (e) {
+          // Try users-permissions JWT
+          try {
+            const jwtService = strapi.plugin('users-permissions').service('jwt');
+            const decoded = await jwtService.verify(token);
+            if (decoded && decoded.id) {
+              const dbUser = await strapi.query('plugin::users-permissions.user').findOne({
+                where: { id: decoded.id },
+              });
+              if (dbUser) {
+                user = {
+                  id: dbUser.id,
+                  documentId: dbUser.documentId,
+                };
+              }
+            }
+          } catch (e2) {
+            // Invalid token, continue without user
+          }
+        }
+      }
+    }
     const allowedPopulates = ['thumbnail', 'bannerImage', 'gallery', 'category', 'tags', 'instructor', 'modules', 'previewVideo', 'quizzes'];
     
     // Build populate object from query
