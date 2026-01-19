@@ -397,6 +397,54 @@
             },
             "description": "Search courses by title (case insensitive)"
           }
+        },
+        {
+          "name": "Get Course by Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/slug/:slug?populate=category,instructor,modules",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "slug", ":slug"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "category,instructor,modules"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "complete-javascript-mastery"
+                }
+              ]
+            },
+            "description": "Get course by slug with populated relations. Supports: thumbnail, category, tags, instructor, modules, previewVideo, quizzes"
+          }
+        },
+        {
+          "name": "Get Courses with Populate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?populate=category,instructor&pagination[pageSize]=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "category,instructor"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get courses with populated relations. Allowed: thumbnail, category, tags, instructor, modules, previewVideo"
+          }
         }
       ]
     },
@@ -414,11 +462,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/modules",
+              "raw": "{{baseUrl}}/api/modules?populate=course,lessons&pagination[pageSize]=25",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "modules"]
+              "path": ["api", "modules"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "course,lessons"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "25"
+                }
+              ]
             },
-            "description": "List all modules (requires auth)"
+            "description": "List all modules with course and lessons. Allowed populate: course, lessons"
           }
         },
         {
@@ -490,11 +548,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/lessons",
+              "raw": "{{baseUrl}}/api/lessons?populate=module&pagination[pageSize]=25",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "lessons"]
+              "path": ["api", "lessons"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "module"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "25"
+                }
+              ]
             },
-            "description": "List all lessons (requires auth)"
+            "description": "List all lessons with module. Allowed populate: module, contentItems, quiz"
           }
         },
         {
@@ -566,11 +634,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/quizzes",
+              "raw": "{{baseUrl}}/api/quizzes?populate=course,questions&pagination[pageSize]=25",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "quizzes"]
+              "path": ["api", "quizzes"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "course,questions"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "25"
+                }
+              ]
             },
-            "description": "List all quizzes (requires auth)"
+            "description": "List all quizzes with course and questions. Allowed populate: course, questions, lesson"
           }
         },
         {
@@ -614,11 +692,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/questions",
+              "raw": "{{baseUrl}}/api/questions?populate=quiz&pagination[pageSize]=25",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "questions"]
+              "path": ["api", "questions"],
+              "query": [
+                {
+                  "key": "populate",
+                  "value": "quiz"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "25"
+                }
+              ]
             },
-            "description": "List all questions (requires auth)"
+            "description": "List all questions with quiz. Allowed populate: quiz"
           }
         },
         {
@@ -727,17 +815,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/enrollments?populate=course",
+              "raw": "{{baseUrl}}/api/enrollments?populate=course,user&pagination[pageSize]=25",
               "host": ["{{baseUrl}}"],
               "path": ["api", "enrollments"],
               "query": [
                 {
                   "key": "populate",
-                  "value": "course"
+                  "value": "course,user"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "25"
                 }
               ]
             },
-            "description": "Get user's course enrollments"
+            "description": "Get user's course enrollments with course and user data. Allowed populate: course, user, invitedBy"
           }
         },
         {
