@@ -6,7 +6,7 @@ export default {
       handler: 'admin-lms.getDashboardStats',
       config: {
         policies: [],
-        middlewares: [],
+        middlewares: ['api::admin-lms.admin-auth'],
       },
     },
     {
@@ -15,7 +15,7 @@ export default {
       handler: 'admin-lms.getAllUsers',
       config: {
         policies: [],
-        middlewares: [],
+        middlewares: ['api::admin-lms.admin-auth'],
       },
     },
     {
@@ -24,7 +24,7 @@ export default {
       handler: 'admin-lms.bulkEnroll',
       config: {
         policies: [],
-        middlewares: [],
+        middlewares: ['api::admin-lms.admin-auth'],
       },
     },
     {
@@ -33,7 +33,7 @@ export default {
       handler: 'admin-lms.updateUserRole',
       config: {
         policies: [],
-        middlewares: [],
+        middlewares: ['api::admin-lms.admin-auth'],
       },
     },
     {
@@ -42,7 +42,7 @@ export default {
       handler: 'admin-lms.getAllEnrollments',
       config: {
         policies: [],
-        middlewares: [],
+        middlewares: ['api::admin-lms.admin-auth'],
       },
     },
     {
@@ -51,7 +51,7 @@ export default {
       handler: 'admin-lms.getCourseAnalytics',
       config: {
         policies: [],
-        middlewares: [],
+        middlewares: ['api::admin-lms.admin-auth'],
       },
     },
     {
@@ -60,7 +60,7 @@ export default {
       handler: 'admin-lms.getAllCertificates',
       config: {
         policies: [],
-        middlewares: [],
+        middlewares: ['api::admin-lms.admin-auth'],
       },
     },
     {
@@ -69,7 +69,7 @@ export default {
       handler: 'admin-lms.revokeCertificate',
       config: {
         policies: [],
-        middlewares: [],
+        middlewares: ['api::admin-lms.admin-auth'],
       },
     },
     {
@@ -78,9 +78,8 @@ export default {
       handler: 'admin-lms.getReports',
       config: {
         policies: [],
-        middlewares: [],
+        middlewares: ['api::admin-lms.admin-auth'],
       },
     },
   ],
 };
-
