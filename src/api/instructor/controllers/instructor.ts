@@ -9,9 +9,12 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       return ctx.unauthorized('You must be logged in');
     }
 
+    // Admins see all courses, instructors see only their own
+    const filters = user.isAdmin ? {} : { instructor: { documentId: user.documentId } };
+    
     const courses = await strapi.documents('api::course.course').findMany({
-      filters: { instructor: { documentId: user.documentId } } as any,
-      populate: ['category', 'thumbnail'],
+      filters: filters as any,
+      populate: ['category', 'thumbnail', 'instructor'],
     });
 
     const courseIds = courses.map((c: any) => c.documentId);
@@ -49,18 +52,38 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       return ctx.unauthorized('You must be logged in');
     }
 
+    // For admin tokens, use provided instructor or require one
+    let instructorId = user.documentId;
+    if (user.isAdmin) {
+      if (data.instructor) {
+        instructorId = data.instructor;
+      } else {
+        // For admin without instructor specified, get first instructor user
+        const profiles = await strapi.documents('api::user-profile.user-profile').findMany({
+          filters: { isInstructor: true } as any,
+          populate: ['user'],
+          limit: 1,
+        });
+        if (profiles.length > 0 && (profiles[0] as any).user?.documentId) {
+          instructorId = (profiles[0] as any).user.documentId;
+        } else {
+          return ctx.badRequest('No instructor specified and no instructors found in system');
+        }
+      }
+    }
+
     const course = await strapi.documents('api::course.course').create({
       data: {
         ...data,
-        instructor: user.documentId,
-        status: 'draft',
+        instructor: instructorId,
+        status: data.status || 'draft',
       } as any,
     });
 
     return { data: course };
   },
 
-  // Update own course
+  // Update own course (or any course for admins)
   async updateCourse(ctx) {
     const user = ctx.state.user;
     const { id } = ctx.params;
@@ -70,7 +93,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       return ctx.unauthorized('You must be logged in');
     }
 
-    // Verify ownership
+    // Verify ownership (admins can update any course)
     const course = await strapi.documents('api::course.course').findOne({
       documentId: id,
       populate: ['instructor'],
@@ -81,7 +104,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     const instructor = (course as any).instructor;
-    if (instructor?.documentId !== user.documentId) {
+    if (!user.isAdmin && instructor?.documentId !== user.documentId) {
       return ctx.forbidden('You can only update your own courses');
     }
 
@@ -103,7 +126,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       return ctx.unauthorized('You must be logged in');
     }
 
-    // Verify ownership
+    // Verify ownership (admins can view any course students)
     const course = await strapi.documents('api::course.course').findOne({
       documentId: id,
       populate: ['instructor'],
@@ -114,7 +137,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     const instructor = (course as any).instructor;
-    if (instructor?.documentId !== user.documentId) {
+    if (!user.isAdmin && instructor?.documentId !== user.documentId) {
       return ctx.forbidden('You can only view students of your own courses');
     }
 
@@ -163,7 +186,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     const courseData = course as any;
-    if (courseData.instructor?.documentId !== user.documentId) {
+    if (!user.isAdmin && courseData.instructor?.documentId !== user.documentId) {
       return ctx.forbidden('You can only add modules to your own courses');
     }
 
@@ -203,7 +226,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     const moduleData = module as any;
-    if (moduleData.course?.instructor?.documentId !== user.documentId) {
+    if (!user.isAdmin && moduleData.course?.instructor?.documentId !== user.documentId) {
       return ctx.forbidden('You can only add lessons to your own courses');
     }
 
@@ -240,7 +263,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     const courseData = course as any;
-    if (courseData.instructor?.documentId !== user.documentId) {
+    if (!user.isAdmin && courseData.instructor?.documentId !== user.documentId) {
       return ctx.forbidden('You can only create quizzes for your own courses');
     }
 
@@ -277,7 +300,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     const quizData = quiz as any;
-    if (quizData.course?.instructor?.documentId !== user.documentId) {
+    if (!user.isAdmin && quizData.course?.instructor?.documentId !== user.documentId) {
       return ctx.forbidden('You can only add questions to your own quizzes');
     }
 
@@ -315,7 +338,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     const courseData = course as any;
-    if (courseData.instructor?.documentId !== user.documentId) {
+    if (!user.isAdmin && courseData.instructor?.documentId !== user.documentId) {
       return ctx.forbidden('You can only create invites for your own courses');
     }
 
@@ -358,7 +381,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     const courseData = course as any;
-    if (courseData.instructor?.documentId !== user.documentId) {
+    if (!user.isAdmin && courseData.instructor?.documentId !== user.documentId) {
       return ctx.forbidden('You can only view analytics for your own courses');
     }
 
@@ -409,7 +432,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     const quizData = quiz as any;
-    if (quizData.course?.instructor?.documentId !== user.documentId) {
+    if (!user.isAdmin && quizData.course?.instructor?.documentId !== user.documentId) {
       return ctx.forbidden('You can only view results for your own quizzes');
     }
 
