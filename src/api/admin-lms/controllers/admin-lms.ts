@@ -102,8 +102,10 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
         } : null,
         // Convenience fields
         isInstructor: profile?.isInstructor || false,
-        isAdmin: user.username?.includes('admin') || false, // Admin users are in admin::user table, not here
-        userType: profile?.isInstructor ? 'instructor' : 'student',
+        isAdmin: user.username?.toLowerCase().includes('admin') || profile?.headline?.toLowerCase() === 'admin',
+        userType: (user.username?.toLowerCase().includes('admin') || profile?.headline?.toLowerCase() === 'admin') 
+          ? 'admin' 
+          : (profile?.isInstructor ? 'instructor' : 'student'),
       };
     });
 
