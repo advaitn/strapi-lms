@@ -661,7 +661,10 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       });
     }
 
-    return { data: { user, profile } };
+    // Sanitize user - remove sensitive fields
+    const { password, resetPasswordToken, confirmationToken, ...safeUser } = user as any;
+    
+    return { data: { user: safeUser, profile } };
   },
 
   async updateProfile(ctx) {
