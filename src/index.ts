@@ -48,6 +48,7 @@ export default {
       const originalFetch = userService.fetchAuthenticatedUser.bind(userService);
       
       userService.fetchAuthenticatedUser = async function(id: any) {
+        // Handle admin panel tokens
         if (typeof id === 'string' && id.startsWith('admin:')) {
           const adminId = parseInt(id.replace('admin:', ''), 10);
           
@@ -75,7 +76,30 @@ export default {
           }
         }
         
-        return originalFetch(id);
+        // Fetch regular user
+        const user = await originalFetch(id);
+        
+        // Check if user has admin privileges based on their profile
+        if (user && user.documentId) {
+          try {
+            const profile = await strapi.documents('api::user-profile.user-profile').findFirst({
+              filters: { user: { documentId: user.documentId } } as any,
+            });
+            
+            // Mark as admin if profile headline is 'Admin' or username contains 'admin'
+            if (profile?.headline?.toLowerCase() === 'admin' || 
+                user.username?.toLowerCase().includes('admin')) {
+              user.isAdmin = true;
+            }
+            
+            // Also attach isInstructor flag
+            user.isInstructor = profile?.isInstructor || false;
+          } catch (e) {
+            // Profile lookup failed, continue without admin flag
+          }
+        }
+        
+        return user;
       };
       
       console.log('[strapi-lms] Admin token authentication enabled for API routes');
