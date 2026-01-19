@@ -851,6 +851,9 @@ export interface ApiLessonLesson extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     video: Schema.Attribute.Media<'videos'>;
+    videoProvider: Schema.Attribute.Enumeration<
+      ['youtube', 'vimeo', 'google_drive', 'wistia', 'other']
+    >;
     videoUrl: Schema.Attribute.String;
   };
 }

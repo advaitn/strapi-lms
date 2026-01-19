@@ -35,6 +35,10 @@
     "videoUrl": {
       "type": "string"
     },
+    "videoProvider": {
+      "type": "enumeration",
+      "enum": ["youtube", "vimeo", "google_drive", "wistia", "other"]
+    },
     "content": {
       "type": "blocks"
     },
