@@ -27,8 +27,16 @@
       "allowedTypes": ["images"],
       "multiple": false
     },
+    "video": {
+      "type": "media",
+      "allowedTypes": ["videos"],
+      "multiple": false
+    },
+    "videoUrl": {
+      "type": "string"
+    },
     "content": {
-      "type": "richtext"
+      "type": "blocks"
     },
     "sortOrder": {
       "type": "integer",

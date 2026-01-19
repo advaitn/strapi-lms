@@ -3,6 +3,16 @@
  * Creates instructors, categories, courses, modules, lessons, and quizzes
  */
 
+// Helper to create blocks content from plain text
+function textToBlocks(text: string) {
+  return [
+    {
+      type: 'paragraph',
+      children: [{ type: 'text', text }],
+    },
+  ];
+}
+
 export default async function seedCLA(strapi: any) {
   console.log('🚀 Starting Clinic Launch Academy seed...');
 
@@ -510,12 +520,15 @@ export default async function seedCLA(strapi: any) {
   for (const courseData of coursesData) {
     console.log(`\n  Creating course: ${courseData.title}`);
     
+    // Strip HTML from description for blocks format
+    const plainDescription = courseData.description.replace(/<[^>]*>/g, '');
+    
     const course = await strapi.documents('api::course.course').create({
       data: {
         title: courseData.title,
         slug: courseData.slug,
         shortDescription: courseData.shortDescription,
-        description: courseData.description,
+        description: textToBlocks(plainDescription),
         category: categories[courseData.category].documentId,
         instructor: instructors[courseData.instructor].documentId,
         difficulty: 'intermediate',
@@ -539,10 +552,9 @@ export default async function seedCLA(strapi: any) {
       const module = await strapi.documents('api::module.module').create({
         data: {
           title: moduleData.title,
-          description: `Module ${moduleOrder}: ${moduleData.title}`,
+          description: textToBlocks(`Module ${moduleOrder}: ${moduleData.title}`),
           course: course.documentId,
           sortOrder: moduleOrder,
-          isRequired: true,
         },
         status: 'published',
       });
@@ -554,11 +566,11 @@ export default async function seedCLA(strapi: any) {
           data: {
             title: lessonData.title,
             description: lessonData.description,
+            content: textToBlocks(lessonData.description),
             module: module.documentId,
             sortOrder: lessonOrder,
-            type: 'video',
             duration: 15 + Math.floor(Math.random() * 30), // 15-45 minutes
-            isFree: lessonOrder === 1, // First lesson of each module is free
+            isPreview: lessonOrder === 1, // First lesson of each module is preview
             isRequired: true,
           },
           status: 'published',
@@ -592,7 +604,7 @@ export default async function seedCLA(strapi: any) {
       for (const q of courseData.quiz.questions) {
         await strapi.documents('api::question.question').create({
           data: {
-            text: q.text,
+            text: textToBlocks(q.text),
             type: q.type,
             options: q.options ? JSON.stringify(q.options) : null,
             correctAnswer: JSON.stringify(q.correctAnswer),

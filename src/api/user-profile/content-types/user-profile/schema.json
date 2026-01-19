@@ -92,7 +92,7 @@
       "default": false
     },
     "instructorBio": {
-      "type": "richtext"
+      "type": "blocks"
     },
     "totalStudents": {
       "type": "integer",

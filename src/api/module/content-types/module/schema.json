@@ -20,11 +20,16 @@
       "targetField": "title"
     },
     "description": {
-      "type": "text"
+      "type": "blocks"
     },
     "thumbnail": {
       "type": "media",
       "allowedTypes": ["images"],
+      "multiple": false
+    },
+    "introVideo": {
+      "type": "media",
+      "allowedTypes": ["videos"],
       "multiple": false
     },
     "sortOrder": {

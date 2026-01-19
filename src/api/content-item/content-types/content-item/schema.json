@@ -40,7 +40,7 @@
       "enum": ["youtube", "vimeo", "google_drive", "dropbox", "other"]
     },
     "textContent": {
-      "type": "richtext"
+      "type": "blocks"
     },
     "duration": {
       "type": "integer",

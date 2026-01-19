@@ -24,7 +24,7 @@
       "multiple": false
     },
     "instructions": {
-      "type": "richtext"
+      "type": "blocks"
     },
     "type": {
       "type": "enumeration",

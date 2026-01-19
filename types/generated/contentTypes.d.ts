@@ -560,7 +560,7 @@ export interface ApiContentItemContentItem extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     sortOrder: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
-    textContent: Schema.Attribute.RichText;
+    textContent: Schema.Attribute.Blocks;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     type: Schema.Attribute.Enumeration<
       [
@@ -618,7 +618,7 @@ export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.RichText;
+    description: Schema.Attribute.Blocks;
     difficulty: Schema.Attribute.Enumeration<
       ['beginner', 'intermediate', 'advanced', 'expert']
     > &
@@ -814,7 +814,7 @@ export interface ApiLessonLesson extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    content: Schema.Attribute.RichText;
+    content: Schema.Attribute.Blocks;
     contentItems: Schema.Attribute.Relation<
       'oneToMany',
       'api::content-item.content-item'
@@ -850,6 +850,8 @@ export interface ApiLessonLesson extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    video: Schema.Attribute.Media<'videos'>;
+    videoUrl: Schema.Attribute.String;
   };
 }
 
@@ -869,7 +871,7 @@ export interface ApiModuleModule extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
+    description: Schema.Attribute.Blocks;
     duration: Schema.Attribute.Integer &
       Schema.Attribute.SetMinMax<
         {
@@ -877,6 +879,7 @@ export interface ApiModuleModule extends Struct.CollectionTypeSchema {
         },
         number
       >;
+    introVideo: Schema.Attribute.Media<'videos'>;
     isPreview: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     lessons: Schema.Attribute.Relation<'oneToMany', 'api::lesson.lesson'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
@@ -980,7 +983,7 @@ export interface ApiQuestionQuestion extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    explanation: Schema.Attribute.RichText;
+    explanation: Schema.Attribute.Blocks;
     hint: Schema.Attribute.Text;
     image: Schema.Attribute.Media<'images'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
@@ -1002,7 +1005,7 @@ export interface ApiQuestionQuestion extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     quiz: Schema.Attribute.Relation<'manyToOne', 'api::quiz.quiz'>;
     sortOrder: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
-    text: Schema.Attribute.RichText & Schema.Attribute.Required;
+    text: Schema.Attribute.Blocks & Schema.Attribute.Required;
     type: Schema.Attribute.Enumeration<
       [
         'mcq_single',
@@ -1098,7 +1101,7 @@ export interface ApiQuizQuiz extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.Text;
-    instructions: Schema.Attribute.RichText;
+    instructions: Schema.Attribute.Blocks;
     isRequired: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     isTimed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
@@ -1208,7 +1211,7 @@ export interface ApiUserProfileUserProfile extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 200;
       }>;
-    instructorBio: Schema.Attribute.RichText;
+    instructorBio: Schema.Attribute.Blocks;
     instructorVerified: Schema.Attribute.Boolean &
       Schema.Attribute.DefaultTo<false>;
     interests: Schema.Attribute.JSON;
