@@ -1,6 +1,44 @@
 import type { Core } from '@strapi/strapi';
 
 const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
+  // Get instructor's courses
+  async getMyCourses(ctx) {
+    const user = ctx.state.user;
+    const { page = 1, pageSize = 25, status } = ctx.query as any;
+
+    if (!user) {
+      return ctx.unauthorized('You must be logged in');
+    }
+
+    // Admins see all courses, instructors see only their own
+    const filters: any = user.isAdmin ? {} : { instructor: { documentId: user.documentId } };
+    if (status) {
+      filters.status = status;
+    }
+
+    const courses = await strapi.documents('api::course.course').findMany({
+      filters,
+      populate: ['category', 'thumbnail', 'instructor', 'modules'],
+      limit: Number(pageSize),
+      start: (Number(page) - 1) * Number(pageSize),
+      sort: { createdAt: 'desc' } as any,
+    });
+
+    const total = await strapi.documents('api::course.course').count({ filters });
+
+    return {
+      data: courses,
+      meta: {
+        pagination: {
+          page: Number(page),
+          pageSize: Number(pageSize),
+          total,
+          pageCount: Math.ceil(total / Number(pageSize)),
+        },
+      },
+    };
+  },
+
   // Get instructor dashboard
   async getDashboard(ctx) {
     const user = ctx.state.user;

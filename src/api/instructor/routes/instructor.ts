@@ -10,6 +10,15 @@ export default {
       },
     },
     {
+      method: 'GET',
+      path: '/instructor/courses',
+      handler: 'instructor.getMyCourses',
+      config: {
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
       method: 'POST',
       path: '/instructor/courses',
       handler: 'instructor.createCourse',

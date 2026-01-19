@@ -1264,12 +1264,18 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"user-document-id\",\n  \"isInstructor\": true\n}"
+              "raw": "{\n  \"roleId\": \"role-id-here\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/admin-lms/users/role",
+              "raw": "{{baseUrl}}/api/admin-lms/users/:id/role",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "admin-lms", "users", "role"]
+              "path": ["api", "admin-lms", "users", ":id", "role"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "user-document-id"
+                }
+              ]
             },
             "description": "Update a user's role"
           }
@@ -1308,12 +1314,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"courseId\": \"course-document-id\",\n  \"userIds\": [\"user-1-doc-id\", \"user-2-doc-id\"]\n}"
+              "raw": "{\n  \"courseId\": \"course-document-id\",\n  \"userIds\": [\"user-1-doc-id\", \"user-2-doc-id\"],\n  \"enrollmentType\": \"admin\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/admin-lms/enrollments/bulk",
+              "raw": "{{baseUrl}}/api/admin-lms/bulk-enroll",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "admin-lms", "enrollments", "bulk"]
+              "path": ["api", "admin-lms", "bulk-enroll"]
             },
             "description": "Bulk enroll multiple users in a course"
           }
@@ -1420,7 +1426,7 @@
         {
           "name": "Revoke Certificate",
           "request": {
-            "method": "DELETE",
+            "method": "POST",
             "header": [
               {
                 "key": "Authorization",
@@ -1428,12 +1434,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/admin-lms/certificates/:certificateId",
+              "raw": "{{baseUrl}}/api/admin-lms/certificates/:id/revoke",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "admin-lms", "certificates", ":certificateId"],
+              "path": ["api", "admin-lms", "certificates", ":id", "revoke"],
               "variable": [
                 {
-                  "key": "certificateId",
+                  "key": "id",
                   "value": "certificate-document-id"
                 }
               ]

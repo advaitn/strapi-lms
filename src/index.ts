@@ -8,7 +8,65 @@ export default {
    * An asynchronous register function that runs before
    * your application is initialized.
    */
-  register(/* { strapi }: { strapi: Core.Strapi } */) {},
+  register({ strapi }: { strapi: Core.Strapi }) {
+    // Register a global middleware to handle admin token bypass BEFORE permission checks
+    strapi.server.use(async (ctx: any, next: () => Promise<void>) => {
+      // Skip if not an API route
+      if (!ctx.url.startsWith('/api/')) {
+        return next();
+      }
+      
+      const authorization = ctx.request.header.authorization;
+      if (!authorization) {
+        return next();
+      }
+      
+      const parts = authorization.split(' ');
+      if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') {
+        return next();
+      }
+      
+      const token = parts[1];
+      const adminJwtSecret = process.env.ADMIN_JWT_SECRET;
+      
+      if (adminJwtSecret) {
+        try {
+          const decoded = jwt.verify(token, adminJwtSecret) as any;
+          
+          // Check if this is an admin token (has userId from Strapi admin)
+          if (decoded && decoded.userId) {
+            const adminUser = await strapi.query('admin::user').findOne({
+              where: { id: decoded.userId },
+            });
+            
+            if (adminUser && adminUser.isActive) {
+              // Set admin state - this bypasses users-permissions checks
+              ctx.state.isAuthenticated = true;
+              ctx.state.auth = {
+                strategy: { name: 'admin-token' },
+                credentials: adminUser,
+              };
+              ctx.state.user = {
+                id: adminUser.id,
+                documentId: `admin-${adminUser.id}`,
+                username: `${adminUser.firstname || ''} ${adminUser.lastname || ''}`.trim() || adminUser.email,
+                email: adminUser.email,
+                confirmed: true,
+                blocked: false,
+                isAdmin: true,
+                isInstructor: true, // Admins have instructor privileges too
+                role: { id: 0, name: 'Super Admin', type: 'super_admin' },
+              };
+            }
+          }
+        } catch (e: any) {
+          // Not an admin token or invalid, continue with normal auth
+        }
+      }
+      
+      return next();
+    });
+  },
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -58,11 +116,6 @@ export default {
           });
           
           if (adminUser && adminUser.isActive) {
-            // Get the Authenticated role for permission checks
-            const authenticatedRole = await strapi.query('plugin::users-permissions.role').findOne({
-              where: { type: 'authenticated' },
-            });
-            
             return {
               id: adminUser.id,
               documentId: `admin-${adminUser.id}`,
@@ -71,7 +124,8 @@ export default {
               confirmed: true,
               blocked: false,
               isAdmin: true,
-              role: authenticatedRole || { id: 1, name: 'Authenticated', type: 'authenticated' },
+              isInstructor: true,
+              role: { id: 0, name: 'Super Admin', type: 'super_admin' },
             };
           }
         }
@@ -110,6 +164,20 @@ export default {
         
         return user;
       };
+      
+      // Override the permission check to allow admin users
+      const permissionsService = usersPermissions.service('permissions');
+      if (permissionsService && permissionsService.canAccess) {
+        const originalCanAccess = permissionsService.canAccess.bind(permissionsService);
+        
+        permissionsService.canAccess = async function(ctx: any, ...args: any[]) {
+          // If user is admin (set by our global middleware), allow access
+          if (ctx.state.user?.isAdmin === true) {
+            return true;
+          }
+          return originalCanAccess(ctx, ...args);
+        };
+      }
       
       console.log('[strapi-lms] Admin token authentication enabled for API routes');
     }
