@@ -100,9 +100,10 @@ export default factories.createCoreController('api::course.course', ({ strapi })
     return { data: course };
   },
 
-  // Find course by slug
+  // Find course by slug or documentId
   async findBySlug(ctx) {
     const { slug } = ctx.params;
+    const user = ctx.state.user;
     const allowedPopulates = ['thumbnail', 'bannerImage', 'gallery', 'category', 'tags', 'instructor', 'modules', 'previewVideo', 'quizzes'];
     
     // Build populate object from query
@@ -122,17 +123,40 @@ export default factories.createCoreController('api::course.course', ({ strapi })
       }
     }
 
-    const course = await strapi.documents('api::course.course').findFirst({
-      filters: { 
-        slug,
-        visibility: 'public',
-      } as any,
-      populate: Object.keys(populateConfig).length > 0 ? populateConfig : undefined,
-      status: 'published',
+    // Always populate instructor to check ownership
+    const populateWithInstructor = { 
+      ...populateConfig, 
+      instructor: true 
+    };
+
+    // Try to find by documentId first (for management), then by slug
+    let course = await strapi.documents('api::course.course').findFirst({
+      filters: { documentId: slug } as any,
+      populate: populateWithInstructor,
     });
 
     if (!course) {
+      // Try by slug
+      course = await strapi.documents('api::course.course').findFirst({
+        filters: { slug } as any,
+        populate: populateWithInstructor,
+      });
+    }
+
+    if (!course) {
       return ctx.notFound('Course not found');
+    }
+
+    // Check access permissions
+    const instructor = (course as any).instructor;
+    const isOwner = user && instructor?.documentId === user.documentId;
+    const isAdmin = user?.isAdmin || user?._isAdminToken;
+
+    // If not owner/admin, only allow public published courses
+    if (!isOwner && !isAdmin) {
+      if ((course as any).visibility !== 'public' || (course as any).status !== 'published') {
+        return ctx.notFound('Course not found');
+      }
     }
 
     return { data: course };
