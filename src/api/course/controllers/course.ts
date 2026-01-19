@@ -61,6 +61,46 @@ export default factories.createCoreController('api::course.course', ({ strapi })
     return await super.findOne(ctx);
   },
 
+  // Find course by slug
+  async findBySlug(ctx) {
+    const { slug } = ctx.params;
+    const allowedPopulates = ['thumbnail', 'category', 'tags', 'instructor', 'modules', 'previewVideo', 'quizzes'];
+    
+    // Build populate object from query
+    let populateConfig: any = {};
+    const requestedPopulate = ctx.query.populate;
+    
+    if (requestedPopulate) {
+      if (typeof requestedPopulate === 'string') {
+        const populateFields = requestedPopulate.split(',').map(f => f.trim());
+        for (const field of populateFields) {
+          if (allowedPopulates.includes(field)) {
+            populateConfig[field] = true;
+          }
+        }
+      } else if (typeof requestedPopulate === 'object') {
+        populateConfig = requestedPopulate;
+      }
+    }
+
+    const course = await strapi.documents('api::course.course').findFirst({
+      filters: { slug } as any,
+      populate: Object.keys(populateConfig).length > 0 ? populateConfig : undefined,
+    });
+
+    if (!course) {
+      return ctx.notFound('Course not found');
+    }
+
+    // Check visibility for non-authenticated users
+    const user = ctx.state.user;
+    if (!user && (course.visibility !== 'public' || course.status !== 'published')) {
+      return ctx.notFound('Course not found');
+    }
+
+    return { data: course };
+  },
+
   // Get courses for the current instructor
   async myInstructorCourses(ctx) {
     const user = ctx.state.user;
