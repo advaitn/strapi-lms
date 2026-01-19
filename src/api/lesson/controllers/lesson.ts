@@ -94,6 +94,8 @@ export default factories.createCoreController('api::lesson.lesson', ({ strapi })
     const user = ctx.state.user;
     const data = (ctx.request.body as any).data;
 
+    console.log('[lesson.update] User:', user?.username, 'isAdmin:', user?.isAdmin, 'id:', user?.id);
+
     if (!user) {
       return ctx.unauthorized('You must be logged in');
     }
@@ -118,9 +120,15 @@ export default factories.createCoreController('api::lesson.lesson', ({ strapi })
 
     // Check ownership - admin can update any, instructor can update their own
     const instructor = (lesson as any).module?.course?.instructor;
+    console.log('[lesson.update] Instructor:', instructor?.username, 'docId:', instructor?.documentId);
+    console.log('[lesson.update] User docId:', user.documentId, 'isAdmin:', user.isAdmin);
+    
     if (!user.isAdmin && instructor?.documentId !== user.documentId) {
+      console.log('[lesson.update] DENIED - not admin and not owner');
       return ctx.forbidden('You can only update lessons in your own courses');
     }
+    
+    console.log('[lesson.update] ALLOWED');
 
     const updated = await strapi.documents('api::lesson.lesson').update({
       documentId: id,
