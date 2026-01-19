@@ -4,61 +4,100 @@ export default factories.createCoreController('api::course.course', ({ strapi })
   // Override find to filter based on visibility and user role
   async find(ctx) {
     const user = ctx.state.user;
+    const { page = 1, pageSize = 25, filters: queryFilters, sort } = ctx.query as any;
+    const requestedPopulate = ctx.query.populate;
     
-    // If no user, only show public published courses
+    // Build filters
+    const filters: any = queryFilters || {};
     if (!user) {
-      const existingFilters = ctx.query.filters as Record<string, any> || {};
-      ctx.query.filters = {
-        ...existingFilters,
-        visibility: 'public',
-        status: 'published',
-      };
+      filters.visibility = 'public';
     }
 
     // Handle populate parameter - allow specific relations
-    const requestedPopulate = ctx.query.populate;
+    const allowedPopulates = ['thumbnail', 'category', 'tags', 'instructor', 'modules', 'previewVideo'];
+    let populateConfig: any = {};
+    
     if (requestedPopulate) {
-      // Parse the populate parameter
-      const allowedPopulates = ['thumbnail', 'category', 'tags', 'instructor', 'modules', 'previewVideo'];
-      
       if (typeof requestedPopulate === 'string') {
         const populateFields = requestedPopulate.split(',').map(f => f.trim());
-        const validPopulates: any = {};
-        
         for (const field of populateFields) {
           if (allowedPopulates.includes(field)) {
-            validPopulates[field] = true;
+            populateConfig[field] = true;
           }
         }
-        
-        ctx.query.populate = validPopulates;
+      } else if (typeof requestedPopulate === 'object') {
+        for (const key of Object.keys(requestedPopulate)) {
+          if (allowedPopulates.includes(key)) {
+            populateConfig[key] = requestedPopulate[key];
+          }
+        }
       }
     }
     
-    return await super.find(ctx);
+    const courses = await strapi.documents('api::course.course').findMany({
+      filters,
+      populate: Object.keys(populateConfig).length > 0 ? populateConfig : undefined,
+      limit: Number(pageSize),
+      start: (Number(page) - 1) * Number(pageSize),
+      sort: sort ? (sort as string).split(',').reduce((acc: any, s: string) => {
+        const [field, order] = s.split(':');
+        acc[field] = order || 'asc';
+        return acc;
+      }, {}) : { title: 'asc' },
+      status: 'published',
+    });
+    
+    const total = await strapi.documents('api::course.course').count({ filters, status: 'published' });
+    
+    return {
+      data: courses,
+      meta: {
+        pagination: {
+          page: Number(page),
+          pageSize: Number(pageSize),
+          total,
+          pageCount: Math.ceil(total / Number(pageSize)),
+        },
+      },
+    };
   },
 
   // Override findOne to allow population
   async findOne(ctx) {
+    const { id } = ctx.params;
     const requestedPopulate = ctx.query.populate;
+    
+    const allowedPopulates = ['thumbnail', 'category', 'tags', 'instructor', 'modules', 'previewVideo', 'quizzes'];
+    let populateConfig: any = {};
+    
     if (requestedPopulate) {
-      const allowedPopulates = ['thumbnail', 'category', 'tags', 'instructor', 'modules', 'previewVideo', 'quizzes'];
-      
       if (typeof requestedPopulate === 'string') {
         const populateFields = requestedPopulate.split(',').map(f => f.trim());
-        const validPopulates: any = {};
-        
         for (const field of populateFields) {
           if (allowedPopulates.includes(field)) {
-            validPopulates[field] = true;
+            populateConfig[field] = true;
           }
         }
-        
-        ctx.query.populate = validPopulates;
+      } else if (typeof requestedPopulate === 'object') {
+        for (const key of Object.keys(requestedPopulate)) {
+          if (allowedPopulates.includes(key)) {
+            populateConfig[key] = requestedPopulate[key];
+          }
+        }
       }
     }
     
-    return await super.findOne(ctx);
+    const course = await strapi.documents('api::course.course').findOne({
+      documentId: id,
+      populate: Object.keys(populateConfig).length > 0 ? populateConfig : undefined,
+      status: 'published',
+    });
+    
+    if (!course) {
+      return ctx.notFound('Course not found');
+    }
+    
+    return { data: course };
   },
 
   // Find course by slug

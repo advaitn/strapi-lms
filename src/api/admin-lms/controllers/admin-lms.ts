@@ -225,12 +225,26 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       limit: Number(pageSize),
       start: (Number(page) - 1) * Number(pageSize),
       sort: { createdAt: 'desc' } as any,
+      status: 'published',
     });
 
-    const total = await strapi.documents('api::enrollment.enrollment').count({ filters });
+    // Clean up user password hashes
+    const cleanedEnrollments = enrollments.map((enrollment: any) => ({
+      ...enrollment,
+      user: enrollment.user ? {
+        id: enrollment.user.id,
+        documentId: enrollment.user.documentId,
+        username: enrollment.user.username,
+        email: enrollment.user.email,
+        confirmed: enrollment.user.confirmed,
+        blocked: enrollment.user.blocked,
+      } : null,
+    }));
+
+    const total = await strapi.documents('api::enrollment.enrollment').count({ filters, status: 'published' });
 
     return {
-      data: enrollments,
+      data: cleanedEnrollments,
       meta: {
         pagination: {
           page: Number(page),
