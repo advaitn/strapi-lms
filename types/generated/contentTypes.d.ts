@@ -480,6 +480,7 @@ export interface ApiCertificateCertificate extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    badgeImage: Schema.Attribute.Media<'images'>;
     certificateNumber: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
@@ -595,6 +596,7 @@ export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
   attributes: {
     allowSelfEnrollment: Schema.Attribute.Boolean &
       Schema.Attribute.DefaultTo<true>;
+    bannerImage: Schema.Attribute.Media<'images'>;
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>;
     certificateEnabled: Schema.Attribute.Boolean &
       Schema.Attribute.DefaultTo<false>;
@@ -634,6 +636,7 @@ export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
       'api::enrollment.enrollment'
     >;
     enrollmentStartDate: Schema.Attribute.DateTime;
+    gallery: Schema.Attribute.Media<'images', true>;
     instructor: Schema.Attribute.Relation<
       'manyToOne',
       'plugin::users-permissions.user'
@@ -827,6 +830,7 @@ export interface ApiLessonLesson extends Struct.CollectionTypeSchema {
         },
         number
       >;
+    featuredImage: Schema.Attribute.Media<'images'>;
     isPreview: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     isRequired: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
@@ -886,6 +890,7 @@ export interface ApiModuleModule extends Struct.CollectionTypeSchema {
     sortOrder: Schema.Attribute.Integer &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<0>;
+    thumbnail: Schema.Attribute.Media<'images'>;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -1088,6 +1093,7 @@ export interface ApiQuizQuiz extends Struct.CollectionTypeSchema {
   };
   attributes: {
     course: Schema.Attribute.Relation<'manyToOne', 'api::course.course'>;
+    coverImage: Schema.Attribute.Media<'images'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

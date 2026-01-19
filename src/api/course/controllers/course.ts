@@ -129,14 +129,23 @@ export default factories.createCoreController('api::course.course', ({ strapi })
       instructor: true 
     };
 
-    // Try to find by documentId first (for management), then by slug
-    let course = await strapi.documents('api::course.course').findFirst({
-      filters: { documentId: slug } as any,
-      populate: populateWithInstructor,
-    });
+    let course: any = null;
+
+    // Try to find by documentId first (for management)
+    // documentIds are typically alphanumeric strings without dashes
+    if (/^[a-z0-9]{20,}$/i.test(slug)) {
+      try {
+        course = await strapi.documents('api::course.course').findOne({
+          documentId: slug,
+          populate: populateWithInstructor,
+        });
+      } catch (e) {
+        // Not a valid documentId, continue to slug lookup
+      }
+    }
 
     if (!course) {
-      // Try by slug
+      // Try by slug field
       course = await strapi.documents('api::course.course').findFirst({
         filters: { slug } as any,
         populate: populateWithInstructor,
