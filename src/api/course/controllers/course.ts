@@ -84,17 +84,15 @@ export default factories.createCoreController('api::course.course', ({ strapi })
     }
 
     const course = await strapi.documents('api::course.course').findFirst({
-      filters: { slug } as any,
+      filters: { 
+        slug,
+        visibility: 'public',
+      } as any,
       populate: Object.keys(populateConfig).length > 0 ? populateConfig : undefined,
+      status: 'published',
     });
 
     if (!course) {
-      return ctx.notFound('Course not found');
-    }
-
-    // Check visibility for non-authenticated users
-    const user = ctx.state.user;
-    if (!user && (course.visibility !== 'public' || course.status !== 'published')) {
       return ctx.notFound('Course not found');
     }
 
