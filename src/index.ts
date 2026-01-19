@@ -1,5 +1,6 @@
 import type { Core } from '@strapi/strapi';
 import seedData from './seed';
+import jwt from 'jsonwebtoken';
 
 export default {
   /**
@@ -13,58 +14,71 @@ export default {
    * your application gets started.
    */
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
-    // Add middleware to accept admin tokens for all API routes
-    // This runs early in the request lifecycle
-    (strapi as any).server.app.use(async (ctx: any, next: () => Promise<void>) => {
-      // Only process /api routes (not /admin routes)
-      if (!ctx.request.path.startsWith('/api/')) {
-        return next();
-      }
+    // Override the users-permissions JWT verify to also accept admin tokens
+    const usersPermissions = strapi.plugin('users-permissions');
+    
+    if (usersPermissions) {
+      const jwtService = usersPermissions.service('jwt');
+      const originalVerify = jwtService.verify.bind(jwtService);
       
-      const authHeader = ctx.request.headers.authorization;
+      // Get admin JWT secret
+      const adminJwtSecret = strapi.config.get('admin.auth.secret') || process.env.ADMIN_JWT_SECRET;
       
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return next();
-      }
-      
-      const token = authHeader.split(' ')[1];
-      
-      if (!token) {
-        return next();
-      }
-      
-      // Check if it's an admin token
-      try {
-        const decodedAdminToken = await strapi.admin.services.token.verify(token);
+      jwtService.verify = async function(token: string) {
+        // First try admin token using jsonwebtoken directly
+        if (adminJwtSecret) {
+          try {
+            const decoded = jwt.verify(token, adminJwtSecret as string) as any;
+            
+            if (decoded && decoded.userId) {
+              return { id: `admin:${decoded.userId}`, isAdmin: true };
+            }
+          } catch (e: any) {
+            // Not an admin token or invalid, fall through
+          }
+        }
         
-        if (decodedAdminToken && decodedAdminToken.userId) {
-          const adminUser = await strapi.admin.services.user.findOne(decodedAdminToken.userId);
+        // Fall back to users-permissions token
+        return originalVerify(token);
+      };
+      
+      // Override fetchAuthenticatedUser
+      const userService = usersPermissions.service('user');
+      const originalFetch = userService.fetchAuthenticatedUser.bind(userService);
+      
+      userService.fetchAuthenticatedUser = async function(id: any) {
+        if (typeof id === 'string' && id.startsWith('admin:')) {
+          const adminId = parseInt(id.replace('admin:', ''), 10);
           
-          if (adminUser) {
-            // Set user in state so downstream auth sees it as authenticated
-            ctx.state.user = {
+          // Find admin user
+          const adminUser = await strapi.query('admin::user').findOne({
+            where: { id: adminId },
+          });
+          
+          if (adminUser && adminUser.isActive) {
+            // Get the Authenticated role for permission checks
+            const authenticatedRole = await strapi.query('plugin::users-permissions.role').findOne({
+              where: { type: 'authenticated' },
+            });
+            
+            return {
               id: adminUser.id,
               documentId: `admin-${adminUser.id}`,
-              username: `${adminUser.firstname} ${adminUser.lastname}`.trim(),
+              username: `${adminUser.firstname || ''} ${adminUser.lastname || ''}`.trim() || adminUser.email,
               email: adminUser.email,
               confirmed: true,
               blocked: false,
               isAdmin: true,
-              _isAdminToken: true,
-              role: { id: 0, name: 'Admin', type: 'admin' },
-            };
-            ctx.state.auth = {
-              strategy: { name: 'admin' },
-              credentials: ctx.state.user,
+              role: authenticatedRole || { id: 1, name: 'Authenticated', type: 'authenticated' },
             };
           }
         }
-      } catch (err) {
-        // Not an admin token, let normal auth flow continue
-      }
+        
+        return originalFetch(id);
+      };
       
-      return next();
-    });
+      console.log('[strapi-lms] Admin token authentication enabled for API routes');
+    }
     
     // Run seed if SEED_DATA env var is set
     if (process.env.SEED_DATA === 'true') {

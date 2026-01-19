@@ -68,6 +68,7 @@ const seedData = async (strapi: Core.Strapi) => {
         username: user.username,
         email: user.email,
         password: user.password,
+        provider: 'local',
         confirmed: true,
         blocked: false,
         role: authenticatedRole.id,
