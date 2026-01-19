@@ -80,22 +80,31 @@ export default {
         const user = await originalFetch(id);
         
         // Check if user has admin privileges based on their profile
-        if (user && user.documentId) {
+        if (user) {
+          // First check username for admin
+          if (user.username?.toLowerCase().includes('admin')) {
+            user.isAdmin = true;
+            console.log(`[auth] User ${user.username} marked as admin (username contains admin)`);
+          }
+          
+          // Try to get profile for additional flags
           try {
             const profile = await strapi.documents('api::user-profile.user-profile').findFirst({
-              filters: { user: { documentId: user.documentId } } as any,
+              filters: { user: { id: user.id } } as any,
             });
             
-            // Mark as admin if profile headline is 'Admin' or username contains 'admin'
-            if (profile?.headline?.toLowerCase() === 'admin' || 
-                user.username?.toLowerCase().includes('admin')) {
-              user.isAdmin = true;
+            if (profile) {
+              // Mark as admin if profile headline is 'Admin'
+              if (profile.headline?.toLowerCase() === 'admin') {
+                user.isAdmin = true;
+                console.log(`[auth] User ${user.username} marked as admin (profile headline)`);
+              }
+              
+              // Attach isInstructor flag
+              user.isInstructor = profile.isInstructor || false;
             }
-            
-            // Also attach isInstructor flag
-            user.isInstructor = profile?.isInstructor || false;
           } catch (e) {
-            // Profile lookup failed, continue without admin flag
+            console.log(`[auth] Profile lookup failed for user ${user.id}:`, e);
           }
         }
         
