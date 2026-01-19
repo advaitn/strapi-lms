@@ -158,12 +158,26 @@ export default factories.createCoreController('api::course.course', ({ strapi })
 
     // Check access permissions
     const instructor = (course as any).instructor;
-    const isOwner = user && instructor?.documentId === user.documentId;
+    
+    // Debug logging
+    console.log('[findBySlug] User:', user ? { id: user.id, documentId: user.documentId, isAdmin: user.isAdmin } : 'null');
+    console.log('[findBySlug] Course:', { status: course.status, visibility: course.visibility });
+    console.log('[findBySlug] Instructor:', instructor ? { id: instructor.id, documentId: instructor.documentId } : 'null');
+    
+    // Check ownership by both id and documentId (JWT user may not have documentId populated)
+    const isOwner = user && instructor && (
+      instructor.documentId === user.documentId ||
+      instructor.id === user.id ||
+      String(instructor.id) === String(user.id)
+    );
     const isAdmin = user?.isAdmin || user?._isAdminToken;
+    
+    console.log('[findBySlug] isOwner:', isOwner, 'isAdmin:', isAdmin);
 
     // If not owner/admin, only allow public published courses
     if (!isOwner && !isAdmin) {
       if ((course as any).visibility !== 'public' || (course as any).status !== 'published') {
+        console.log('[findBySlug] Access denied - not owner/admin and course is not public/published');
         return ctx.notFound('Course not found');
       }
     }
