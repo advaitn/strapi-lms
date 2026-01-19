@@ -216,6 +216,38 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     };
   },
 
+  // Get all certificates
+  async getAllCertificates(ctx) {
+    const { page = 1, pageSize = 25, status, courseId, userId } = ctx.query as any;
+
+    const filters: any = {};
+    if (status) filters.status = status;
+    if (courseId) filters.course = { documentId: courseId };
+    if (userId) filters.user = { documentId: userId };
+
+    const certificates = await strapi.documents('api::certificate.certificate').findMany({
+      filters,
+      populate: ['user', 'course'],
+      limit: Number(pageSize),
+      start: (Number(page) - 1) * Number(pageSize),
+      sort: { issuedAt: 'desc' } as any,
+    });
+
+    const total = await strapi.documents('api::certificate.certificate').count({ filters });
+
+    return {
+      data: certificates,
+      meta: {
+        pagination: {
+          page: Number(page),
+          pageSize: Number(pageSize),
+          total,
+          pageCount: Math.ceil(total / Number(pageSize)),
+        },
+      },
+    };
+  },
+
   // Revoke certificate
   async revokeCertificate(ctx) {
     const { id } = ctx.params;

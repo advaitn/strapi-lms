@@ -55,6 +55,15 @@ export default {
       },
     },
     {
+      method: 'GET',
+      path: '/admin-lms/certificates',
+      handler: 'admin-lms.getAllCertificates',
+      config: {
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
       method: 'POST',
       path: '/admin-lms/certificates/:id/revoke',
       handler: 'admin-lms.revokeCertificate',

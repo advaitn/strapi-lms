@@ -1283,6 +1283,49 @@
           }
         },
         {
+          "name": "Get All Certificates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin-lms/certificates?page=1&pageSize=25",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin-lms", "certificates"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "25"
+                },
+                {
+                  "key": "status",
+                  "value": "issued",
+                  "disabled": true
+                },
+                {
+                  "key": "courseId",
+                  "value": "course-document-id",
+                  "disabled": true
+                },
+                {
+                  "key": "userId",
+                  "value": "user-document-id",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all certificates with user and course populated. Supports pagination and filtering by status, courseId, userId."
+          }
+        },
+        {
           "name": "Revoke Certificate",
           "request": {
             "method": "DELETE",
